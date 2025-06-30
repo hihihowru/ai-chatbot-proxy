@@ -2,6 +2,7 @@ import openai
 import json
 from typing import List, Dict
 import os
+from .detect_stock import get_stock_name_by_id
 
 PROMPT = '''你是一位只能回傳 JSON 的 API，請根據下列資訊，產生結構化個股分析報告，**只回傳 JSON 陣列，每個 section 格式如下**：
 
@@ -73,6 +74,9 @@ PROMPT = '''你是一位只能回傳 JSON 的 API，請根據下列資訊，產�
 '''
 
 def generate_report(company_name: str, stock_id: str, intent: str = "", time_info: str = "", news_summary: str = "", chart_info: dict = None, news_sources: list = None, financial_sources: list = None) -> dict:
+    # 若 company_name 為空，則自動補上中文股名
+    if not company_name and stock_id:
+        company_name = get_stock_name_by_id(stock_id) or stock_id
     try:
         user_input = f"{company_name} {stock_id} {intent}"
         summary_points = news_summary.split('\n') if news_summary else []

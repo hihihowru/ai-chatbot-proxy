@@ -55,6 +55,16 @@ def detect_stocks(text: str) -> List[str]:
     
     return detected_stocks
 
+def get_stock_name_by_id(stock_id: str) -> Optional[str]:
+    """
+    根據股票代號回傳中文股名（取 stock_alias_dict.json 中該代號的第一個非數字 alias）
+    """
+    aliases = stock_dict.get(stock_id, [])
+    for alias in aliases:
+        if not alias.isdigit():
+            return alias
+    return None
+
 # 測試用
 if __name__ == "__main__":
     test_cases = [
