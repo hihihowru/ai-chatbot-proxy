@@ -2,6 +2,7 @@ import json
 import sys
 import os
 from typing import List, Dict
+import openai
 
 # 添加父目錄到 path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -143,6 +144,29 @@ def generate_report_pipeline(
         print(f"[DEBUG] ===== 投資分析報告 pipeline 完成 =====")
         print(f"[DEBUG] 最終 sections 數量: {len(all_sections)}")
         
+        # 新增 paraphrased_prompt
+        paraphrased_prompt = None
+        user_prompt = intent or ""
+        if user_prompt:
+            try:
+                openai_api_key = os.getenv("OPENAI_API_KEY")
+                if openai_api_key:
+                    client = openai.OpenAI(api_key=openai_api_key)
+                    prompt = f"請用更自然、口語化的方式改寫這句投資問題，保持原意但更適合放在報告開頭：\n{user_prompt}"
+                    response = client.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.5
+                    )
+                    paraphrased = response.choices[0].message.content.strip()
+                    paraphrased_prompt = f"{user_prompt} - {paraphrased}"
+                else:
+                    paraphrased_prompt = user_prompt
+            except Exception as e:
+                print(f"[DEBUG] OpenAI paraphrase 失敗: {str(e)}")
+                paraphrased_prompt = user_prompt
+        
+        # 回傳結果
         return {
             "success": True,
             "sections": all_sections,
@@ -151,6 +175,7 @@ def generate_report_pipeline(
             "stock_id": stock_id,
             "intent": intent,
             "time_info": time_info,
+            "paraphrased_prompt": paraphrased_prompt,
             "message": f"成功生成投資分析報告，共{len(all_sections)}個 section"
         }
         

@@ -35,10 +35,23 @@ def detect_stocks(text: str) -> List[str]:
         if code in stock_dict:
             detected_stocks.append(code)
     
-    # 再檢查別名
-    for alias, stock_id in alias_to_id.items():
+    # 再檢查別名，優先匹配更長的別名
+    matched_positions = []
+    for alias, stock_id in sorted(alias_to_id.items(), key=lambda x: -len(x[0])):
         if alias in text and stock_id not in detected_stocks:
+            # 記錄匹配位置，用於後續排序
+            start_pos = text.find(alias)
+            matched_positions.append((start_pos, len(alias), stock_id))
+    
+    # 按照匹配長度排序（長度優先），然後按照位置排序
+    matched_positions.sort(key=lambda x: (-x[1], x[0]))
+    
+    # 添加排序後的股票代號，避免重複
+    seen_stocks = set(detected_stocks)
+    for _, _, stock_id in matched_positions:
+        if stock_id not in seen_stocks:
             detected_stocks.append(stock_id)
+            seen_stocks.add(stock_id)
     
     return detected_stocks
 

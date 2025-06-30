@@ -17,6 +17,8 @@ from langgraph_app.nodes.generate_report_pipeline import generate_report_pipelin
 import openai
 from bs4 import BeautifulSoup
 import requests
+import yfinance as yf
+import pandas as pd
 
 # 載入環境變數
 load_dotenv()
@@ -388,7 +390,8 @@ Yahoo 財經財務報表數據：
                             'report': {
                                 'stockName': company_name,
                                 'stockId': stock_id,
-                                'sections': report_sections
+                                'sections': report_sections,
+                                'paraphrased_prompt': summary_result.get('paraphrased_prompt')
                             }
                         }
                         yield f"data: {json.dumps(report_data)}\n\n"
@@ -846,192 +849,126 @@ def merge_search_results(first_results: List[Dict], second_results: List[Dict]) 
 
 def fetch_yahoo_financial_data(stock_id: str, company_name: str) -> Dict:
     """
-    從 Yahoo 財經爬取完整的財務報表數據
+    從 FinLab API 取得財務報表數據，失敗則 fallback 用模擬資料
     """
     try:
-        import requests
-        from bs4 import BeautifulSoup
-        import re
+        import finlab
+        from finlab import data
+        import pandas as pd
         
-        financial_data = {
-            "success": True,
-            "data": {
-                "eps": {},
-                "revenue": {},
-                "income_statement": {},
-                "balance_sheet": {},
-                "equity": {},
-                "sources": []
-            }
+        # 登入 FinLab API
+        api_token = 'AOl10aUjuRAwxdHjbO25jGoH7c8LOhXqKz/HgT9WlcCPkBwL8Qp6PDlqpd59YuR7#vip_m'
+        finlab.login(api_token=api_token)
+        
+        print(f"[DEBUG] 使用 FinLab API 取得 {stock_id} 財務資料")
+        
+        # 初始化資料結構
+        eps_data = {}
+        revenue_data = {}
+        income_statement_data = {}
+        balance_sheet_data = {}
+        sources = []
+        
+        # 只取確定可以取得的資料
+        finlab_data = {
+            "每股盈餘": "financial_statement:每股盈餘",
+            "營業毛利率": "fundamental_features:營業毛利率", 
+            "月營收成長率": "monthly_revenue:去年同月增減(%)"
         }
         
-        # 定義要爬取的財務報表類型
-        financial_types = [
-            {"type": "eps", "url": f"https://tw.stock.yahoo.com/quote/{stock_id}.TW/eps", "name": "每股盈餘"},
-            {"type": "revenue", "url": f"https://tw.stock.yahoo.com/quote/{stock_id}.TW/revenue", "name": "營收表"},
-            {"type": "income_statement", "url": f"https://tw.stock.yahoo.com/quote/{stock_id}.TW/income-statement", "name": "損益表"},
-            {"type": "balance_sheet", "url": f"https://tw.stock.yahoo.com/quote/{stock_id}.TW/balance-sheet", "name": "資產負債表"}
-        ]
-        
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        }
-        
-        for financial_type in financial_types:
+        for name, data_type in finlab_data.items():
             try:
-                response = requests.get(financial_type["url"], headers=headers, timeout=10)
-                
-                if response.status_code == 200:
-                    soup = BeautifulSoup(response.content, 'html.parser')
+                df = data.get(data_type)
+                if stock_id in df.columns:
+                    series = df[stock_id].dropna()
                     
-                    # 提取表格數據
-                    table_data = extract_table_data(soup, financial_type["type"])
+                    # 根據不同的資料類型處理 date index
+                    if name == "月營收成長率":
+                        # 月營收成長率的 date index 是月份格式
+                        for date, value in series.tail(8).items():
+                            # 將月份格式轉換為季度格式
+                            if isinstance(date, str):
+                                # 如果是字串格式，嘗試解析
+                                try:
+                                    from datetime import datetime
+                                    if len(date) == 6:  # YYYYMM 格式
+                                        year = date[:4]
+                                        month = int(date[4:6])
+                                        quarter = f"{year}-Q{(month-1)//3 + 1}"
+                                    else:
+                                        quarter = str(date)
+                                except:
+                                    quarter = str(date)
+                            else:
+                                # 如果是 datetime 格式
+                                quarter = f"{date.year}-Q{(date.month-1)//3 + 1}"
+                            
+                            if quarter not in income_statement_data:
+                                income_statement_data[quarter] = {}
+                            income_statement_data[quarter][name] = round(float(value), 2)
+                    else:
+                        # 其他資料使用原本的季度格式
+                        for date, value in series.tail(4).items():
+                            quarter = date
+                            if quarter not in income_statement_data:
+                                income_statement_data[quarter] = {}
+                            
+                            if name == "每股盈餘":
+                                income_statement_data[quarter][name] = round(float(value), 2)
+                            else:
+                                income_statement_data[quarter][name] = round(float(value), 2)
                     
-                    if table_data:
-                        financial_data["data"][financial_type["type"]] = table_data
-                        financial_data["data"]["sources"].append({
-                            "name": financial_type["name"],
-                            "url": financial_type["url"]
-                        })
-                        
+                    sources.append({"name": f"FinLab API - {name}", "url": "https://ai.finlab.tw/database"})
+                    print(f"[DEBUG] 取得 {name} 資料: {len(series.tail(8 if name == '月營收成長率' else 4))} 筆")
+                    
             except Exception as e:
-                print(f"爬取 {financial_type['name']} 失敗: {str(e)}")
-                continue
+                print(f"[DEBUG] {name} 資料取得失敗: {e}")
         
-        # 如果沒有成功爬取到任何數據，返回模擬數據
-        if not any([financial_data["data"][key] for key in ["eps", "revenue", "income_statement", "balance_sheet"] if key != "sources"]):
-            financial_data["data"] = {
-                "eps": {
-                    "2025_Q1": {"eps": "0.62", "quarterly_growth": "-8.82%", "yearly_growth": "-26.19%", "avg_price": "42.86"},
-                    "2024_Q4": {"eps": "0.68", "quarterly_growth": "-41.38%", "yearly_growth": "-36.45%", "avg_price": "51.00"},
-                    "2024_Q3": {"eps": "1.16", "quarterly_growth": "4.50%", "yearly_growth": "-10.08%", "avg_price": "52.58"}
-                },
-                "revenue": {
-                    "2025_Q1": {"revenue": "57,858,957", "quarterly_growth": "-4.18%", "yearly_growth": "5.91%"},
-                    "2024_Q4": {"revenue": "60,386,110", "quarterly_growth": "-0.16%", "yearly_growth": "9.87%"},
-                    "2024_Q3": {"revenue": "60,485,085", "quarterly_growth": "6.49%", "yearly_growth": "5.99%"}
-                },
-                "income_statement": {
-                    "revenue": {"2025_Q1": "57,858,957", "2024_Q4": "60,386,110", "2024_Q3": "60,485,085"},
-                    "gross_profit": {"2025_Q1": "15,446,645", "2024_Q4": "18,342,581", "2024_Q3": "20,428,845"},
-                    "operating_income": {"2025_Q1": "9,785,901", "2024_Q4": "11,957,004", "2024_Q3": "14,099,633"},
-                    "net_income": {"2025_Q1": "7,743,239", "2024_Q4": "8,459,689", "2024_Q3": "14,441,758"}
-                },
-                "balance_sheet": {
-                    "total_assets": {"2024_Q4": "1,234,567,890", "2024_Q3": "1,200,000,000"},
-                    "total_liabilities": {"2024_Q4": "567,890,123", "2024_Q3": "550,000,000"},
-                    "equity": {"2024_Q4": "666,677,767", "2024_Q3": "650,000,000"}
-                },
-                "sources": [
-                    {"name": "每股盈餘", "url": f"https://tw.stock.yahoo.com/quote/{stock_id}.TW/eps"},
-                    {"name": "營收表", "url": f"https://tw.stock.yahoo.com/quote/{stock_id}.TW/revenue"},
-                    {"name": "損益表", "url": f"https://tw.stock.yahoo.com/quote/{stock_id}.TW/income-statement"},
-                    {"name": "資產負債表", "url": f"https://tw.stock.yahoo.com/quote/{stock_id}.TW/balance-sheet"}
-                ]
+        # 檢查是否有取得任何資料
+        if income_statement_data:
+            print(f"[DEBUG] FinLab API 成功取得 {stock_id} 財務資料")
+            return {
+                "eps": eps_data,
+                "revenue": revenue_data,
+                "income_statement": income_statement_data,
+                "balance_sheet": balance_sheet_data,
+                "sources": sources
             }
-        
-        return financial_data
-        
-    except Exception as e:
-        return {
-            "success": False,
-            "error": f"Yahoo 財經爬取異常: {str(e)}"
-        }
-
-def extract_table_data(soup: BeautifulSoup, data_type: str) -> Dict:
-    """
-    從 BeautifulSoup 物件中提取表格數據
-    """
-    data = {}
-    
-    try:
-        # 尋找表格
-        tables = soup.find_all('table')
-        
-        for table in tables:
-            rows = table.find_all('tr')
+        else:
+            print(f"[DEBUG] FinLab API 未取得任何資料，使用 fallback")
+            raise Exception("No data retrieved from FinLab API")
             
-            for row in rows:
-                cells = row.find_all(['td', 'th'])
-                
-                if len(cells) >= 2:
-                    row_text = str(cells[0])
-                    
-                    if data_type == "eps":
-                        # 提取每股盈餘數據
-                        if '每股盈餘' in row_text:
-                            for i, cell in enumerate(cells[1:], 1):
-                                value = cell.get_text(strip=True)
-                                if value and value != '-':
-                                    quarter_key = f"Q{i}"
-                                    if quarter_key not in data:
-                                        data[quarter_key] = {}
-                                    data[quarter_key]["eps"] = value
-                        
-                        elif '季增率%' in row_text:
-                            for i, cell in enumerate(cells[1:], 1):
-                                value = cell.get_text(strip=True)
-                                if value and value != '-':
-                                    quarter_key = f"Q{i}"
-                                    if quarter_key in data:
-                                        data[quarter_key]["quarterly_growth"] = value
-                        
-                        elif '年增率%' in row_text:
-                            for i, cell in enumerate(cells[1:], 1):
-                                value = cell.get_text(strip=True)
-                                if value and value != '-':
-                                    quarter_key = f"Q{i}"
-                                    if quarter_key in data:
-                                        data[quarter_key]["yearly_growth"] = value
-                    
-                    elif data_type == "revenue":
-                        # 提取營收數據
-                        if '營業收入' in row_text:
-                            for i, cell in enumerate(cells[1:], 1):
-                                value = cell.get_text(strip=True)
-                                if value and value != '-':
-                                    quarter_key = f"Q{i}"
-                                    if quarter_key not in data:
-                                        data[quarter_key] = {}
-                                    data[quarter_key]["revenue"] = value
-                    
-                    elif data_type == "income_statement":
-                        # 提取損益表數據
-                        if any(keyword in row_text for keyword in ['營業收入', '營業毛利', '營業利益', '稅後淨利']):
-                            for keyword in ['營業收入', '營業毛利', '營業利益', '稅後淨利']:
-                                if keyword in row_text:
-                                    key_name = keyword.replace('營業收入', 'revenue').replace('營業毛利', 'gross_profit').replace('營業利益', 'operating_income').replace('稅後淨利', 'net_income')
-                                    if key_name not in data:
-                                        data[key_name] = {}
-                                    
-                                    for i, cell in enumerate(cells[1:], 1):
-                                        value = cell.get_text(strip=True)
-                                        if value and value != '-':
-                                            quarter_key = f"Q{i}"
-                                            data[key_name][quarter_key] = value
-                                    break
-                    
-                    elif data_type == "balance_sheet":
-                        # 提取資產負債表數據
-                        if any(keyword in row_text for keyword in ['資產總計', '負債總計', '股東權益總計']):
-                            for keyword in ['資產總計', '負債總計', '股東權益總計']:
-                                if keyword in row_text:
-                                    key_name = keyword.replace('資產總計', 'total_assets').replace('負債總計', 'total_liabilities').replace('股東權益總計', 'equity')
-                                    if key_name not in data:
-                                        data[key_name] = {}
-                                    
-                                    for i, cell in enumerate(cells[1:], 1):
-                                        value = cell.get_text(strip=True)
-                                        if value and value != '-':
-                                            quarter_key = f"Q{i}"
-                                            data[key_name][quarter_key] = value
-                                    break
-        
-        return data
-        
     except Exception as e:
-        print(f"提取 {data_type} 數據失敗: {str(e)}")
-        return {}
+        print(f"[DEBUG] FinLab API 失敗，使用 fallback 資料: {e}")
+        
+        # Fallback 模擬資料
+        return {
+            "eps": {
+                "2024-Q1": 1.25,
+                "2024-Q2": 1.45,
+                "2024-Q3": 1.35,
+                "2024-Q4": 1.55
+            },
+            "revenue": {
+                "2024-Q1": 50000000000,
+                "2024-Q2": 52000000000,
+                "2024-Q3": 48000000000,
+                "2024-Q4": 55000000000
+            },
+            "income_statement": {
+                "2024-Q1": {"每股盈餘": 1.25, "營收": 50000000000, "營業利益": 8000000000},
+                "2024-Q2": {"每股盈餘": 1.45, "營收": 52000000000, "營業利益": 8500000000},
+                "2024-Q3": {"每股盈餘": 1.35, "營收": 48000000000, "營業利益": 7800000000},
+                "2024-Q4": {"每股盈餘": 1.55, "營收": 55000000000, "營業利益": 9000000000}
+            },
+            "balance_sheet": {
+                "2024-Q1": {"每股淨值": 45.2},
+                "2024-Q2": {"每股淨值": 46.1},
+                "2024-Q3": {"每股淨值": 47.3},
+                "2024-Q4": {"每股淨值": 48.5}
+            },
+            "sources": [{"name": "模擬資料", "url": "fallback"}]
+        }
 
 def format_eps_data(eps_data: Dict) -> str:
     """格式化 EPS 數據"""

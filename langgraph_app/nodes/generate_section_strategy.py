@@ -2,6 +2,7 @@ import openai
 import json
 from typing import List, Dict
 import os
+import re
 
 def generate_strategy_section(company_name: str, stock_id: str, news_summary: str, financial_data: Dict = None, news_sources: List[Dict] = None) -> Dict:
     """
@@ -68,42 +69,42 @@ def generate_strategy_section(company_name: str, stock_id: str, news_summary: st
 
 請回傳 JSON 格式如下，並在每個 suggestion 和 bullets 後面加上來源標記 [來源X]：
 {{
-  "section": "投資策略建議",
+  "section": "不同投資型態的投資策略建議",
   "cards": [
     {{
       "title": "日內交易",
       "suggestion": "根據技術面和消息面分析，建議日內交易時留意{company_name}({stock_id})的盤勢波動，可考慮在適當時機進行快速交易。 [來源1][來源2]",
       "bullets": [
-        "技術面：根據盤後分析，{company_name}({stock_id})有特定買盤介入，可能帶動盤勢波動。 [來源1]",
-        "消息面：外資連續賣超{company_name}({stock_id})，需留意外資動向對股價的影響。 [來源2]",
-        "風險提醒：日內交易風險較高，需注意市場波動和個股消息對股價的影響。"
+        "**技術面**：根據盤後分析，{company_name}({stock_id})有特定買盤介入，可能帶動盤勢波動。 [來源1]",
+        "**消息面**：外資連續賣超{company_name}({stock_id})，需留意外資動向對股價的影響。 [來源2]",
+        "**風險提醒**：日內交易風險較高，需注意市場波動和個股消息對股價的影響。"
       ]
     }},
     {{
       "title": "短線交易", 
       "suggestion": "根據短期趨勢分析，建議短線交易時關注{company_name}({stock_id})的支撐壓力位，可考慮在適當位置進行交易。 [來源3]",
       "bullets": [
-        "趨勢分析：{company_name}({stock_id})上半年EPS創同期新高，股息殖利率超過5%，營收衰退但EPS逆勢增長。 [來源3]",
-        "支撐壓力：支撐位可參考歷年EPS與獲利趨勢，壓力位則需留意外資賣超等因素。 [來源4]",
-        "操作建議：建議在支撐位附近低位進場，並設定適當停損點進行短線交易。"
+        "**趨勢分析**：{company_name}({stock_id})上半年EPS創同期新高，股息殖利率超過5%，營收衰退但EPS逆勢增長。 [來源3]",
+        "**支撐壓力**：支撐位可參考歷年EPS與獲利趨勢，壓力位則需留意外資賣超等因素。 [來源4]",
+        "**操作建議**：建議在支撐位附近低位進場，並設定適當停損點進行短線交易。"
       ]
     }},
     {{
       "title": "中線投資",
       "suggestion": "根據基本面分析，建議中線投資時考慮{company_name}({stock_id})的長期獲利能力和競爭優勢，可考慮進行中長期持有。 [來源5]",
       "bullets": [
-        "基本面：{company_name}({stock_id})上半年EPS表現良好，股息連續配息12年，具有穩定的盈利能力。 [來源5]",
-        "產業面：儘管營收有所下滑，但EPS逆勢增長，顯示公司具備應對市場挑戰的能力。 [來源6]",
-        "投資建議：建議考慮中長期持有{company_name}({stock_id})，並留意公司未來營運動能和市場表現。"
+        "**基本面**：{company_name}({stock_id})上半年EPS表現良好，股息連續配息12年，具有穩定的盈利能力。 [來源5]",
+        "**產業面**：儘管營收有所下滑，但EPS逆勢增長，顯示公司具備應對市場挑戰的能力。 [來源6]",
+        "**投資建議**：建議考慮中長期持有{company_name}({stock_id})，並留意公司未來營運動能和市場表現。"
       ]
     }},
     {{
       "title": "長線投資",
       "suggestion": "根據長期發展分析，建議長線投資時關注{company_name}({stock_id})的競爭優勢和未來發展潛力，可考慮長期持有。 [來源7]",
       "bullets": [
-        "長期趨勢：{company_name}({stock_id})具有穩定的盈利能力和股息配發，未來獲利預期可望持續增長。 [來源7]",
-        "競爭優勢：股息連續配息12年，營收雖衰退但EPS逆勢增長，顯示公司在競爭激烈市場中仍有優勢。 [來源8]",
-        "投資價值：考慮{company_name}({stock_id})的長期投資價值，建議長期持有並留意公司未來發展潛力。"
+        "**長期趨勢**：{company_name}({stock_id})具有穩定的盈利能力和股息配發，未來獲利預期可望持續增長。 [來源7]",
+        "**競爭優勢**：股息連續配息12年，營收雖衰退但EPS逆勢增長，顯示公司在競爭激烈市場中仍有優勢。 [來源8]",
+        "**投資價值**：考慮{company_name}({stock_id})的長期投資價值，建議長期持有並留意公司未來發展潛力。"
       ]
     }}
   ],
@@ -152,6 +153,8 @@ def generate_strategy_section(company_name: str, stock_id: str, news_summary: st
         
         raw_content = response.choices[0].message.content.strip()
         print(f"[DEBUG] LLM 原始回傳內容：\n{raw_content}")
+        # 自動將 *技術面：等替換為 markdown 粗體
+        raw_content = re.sub(r'\*([\u4e00-\u9fa5]+面)：', r'**\1**：', raw_content)
         
         try:
             parsed_content = json.loads(raw_content)
@@ -166,7 +169,7 @@ def generate_strategy_section(company_name: str, stock_id: str, news_summary: st
             print(f"[DEBUG] JSON 解析失敗: {e}")
             # 回傳預設內容
             default_section = {
-                "section": "投資策略建議",
+                "section": "不同投資型態的投資策略建議",
                 "cards": [
                     {
                         "title": "日內交易",
@@ -207,7 +210,7 @@ def generate_strategy_section(company_name: str, stock_id: str, news_summary: st
         print(f"[generate_strategy_section ERROR] {e}")
         # 回傳預設內容
         default_section = {
-            "section": "投資策略建議",
+            "section": "不同投資型態的投資策略建議",
             "cards": [
                 {"title": "日內交易", "suggestion": "資料處理中，請稍後查看。", "bullets": ["處理中..."]},
                 {"title": "短線交易", "suggestion": "資料處理中，請稍後查看。", "bullets": ["處理中..."]},
