@@ -19,6 +19,7 @@ from bs4 import BeautifulSoup
 import requests
 import yfinance as yf
 import pandas as pd
+from routes.answer import router as answer_router
 
 # 載入環境變數
 load_dotenv()
@@ -33,6 +34,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 包含 answer 路由
+app.include_router(answer_router, prefix="/api")
 
 # 追蹤所有活躍的 WebSocket 連線
 class ConnectionManager:
@@ -858,7 +862,7 @@ def fetch_yahoo_financial_data(stock_id: str, company_name: str) -> Dict:
         import pandas as pd
         
         # 登入 FinLab API
-        api_token = 'AOl10aUjuRAwxdHjbO25jGoH7c8LOhXqKz/HgT9WlcCPkBwL8Qp6PDlqpd59YuR7#vip_m'
+        api_token = os.getenv('FINLAB_API_TOKEN', 'AOl10aUjuRAwxdHjbO25jGoH7c8LOhXqKz/HgT9WlcCPkBwL8Qp6PDlqpd59YuR7#vip_m')
         finlab.login(api_token=api_token)
         
         print(f"[DEBUG] 使用 FinLab API 取得 {stock_id} 財務資料")
@@ -1058,6 +1062,45 @@ def format_sources_data(sources: List[Dict]) -> str:
             formatted.append(f"- {str(source)}")
     
     return "\n".join(formatted)
+
+@app.post("/api/proxy_login")
+async def proxy_login(request: Request):
+    form = await request.form()
+    url = "https://www.cmoney.tw/identity/token"
+    resp = requests.post(url, data=form)
+    return Response(content=resp.content, status_code=resp.status_code, media_type=resp.headers.get("Content-Type"))
+
+@app.post("/api/proxy_custom_group")
+async def proxy_custom_group(request: Request):
+    """Proxy for CMoney CustomGroup API"""
+    try:
+        # 讀取 request body
+        body = await request.body()
+        
+        # 轉發到 CMoney API
+        url = "https://www.cmoney.tw/MobileService/ashx/CustomerGroup/CustomGroup.ashx"
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+        
+        # 如果有 Authorization header，也要轉發
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            headers['Authorization'] = auth_header
+            
+        resp = requests.post(url, data=body, headers=headers)
+        
+        return Response(
+            content=resp.content, 
+            status_code=resp.status_code, 
+            media_type=resp.headers.get("Content-Type", "application/json")
+        )
+    except Exception as e:
+        return Response(
+            content=json.dumps({"error": str(e)}), 
+            status_code=500, 
+            media_type="application/json"
+        )
 
 if __name__ == "__main__":
     import uvicorn

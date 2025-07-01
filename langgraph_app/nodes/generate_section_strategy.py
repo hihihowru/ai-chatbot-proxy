@@ -184,6 +184,15 @@ def generate_strategy_section(company_name: str, stock_id: str, news_summary: st
                                     if source.get("title") in source_mapping:
                                         source.update(source_mapping[source["title"]])
             
+            # 修正：若 LLM 回傳沒有 summary_table，則補上一份 fallback summary_table
+            if result.get("cards") and not result.get("summary_table"):
+                result["summary_table"] = [
+                    {"period": "1天", "suggestion": "根據技術面分析，快速交易", "confidence": "中等", "reason": "市場波動大"},
+                    {"period": "1週", "suggestion": "關注支撐壓力", "confidence": "中等", "reason": "短期趨勢"},
+                    {"period": "1個月", "suggestion": "分批布局", "confidence": "中等", "reason": "中期發展"},
+                    {"period": "1季+", "suggestion": "長期持有", "confidence": "中等", "reason": "基本面穩健"}
+                ]
+            
             print(f"[DEBUG] ✅ 投資策略建議產生成功")
             return {
                 "success": True,

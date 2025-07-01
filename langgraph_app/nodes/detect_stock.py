@@ -18,10 +18,18 @@ for stock_id, aliases in stock_dict.items():
 def detect_stock(text: str) -> Optional[str]:
     """
     輸入一句話，回傳偵測到的 stock id（若無則回傳 None）
-    保持向後相容性
+    先做 alias 完全等於比對，再做包含比對。
     """
-    stocks = detect_stocks(text)
-    return stocks[0] if stocks else None
+    lowered = text.strip().lower()
+    # 完全等於優先
+    for alias, stock_id in alias_to_id.items():
+        if lowered == alias.lower():
+            return stock_id
+    # 再做包含
+    for alias, stock_id in alias_to_id.items():
+        if alias.lower() in lowered:
+            return stock_id
+    return None
 
 def detect_stocks(text: str) -> List[str]:
     """

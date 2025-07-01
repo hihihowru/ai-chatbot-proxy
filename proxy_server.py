@@ -2,6 +2,7 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 import uvicorn
+from flask import Flask, request, Response
 
 app = FastAPI()
 
@@ -37,6 +38,12 @@ def proxy_news(stockId: str = Query(...)):
         return response.json()
     except Exception as e:
         return {"error": str(e)}
+
+@app.route('/api/proxy_login', methods=['POST'])
+def proxy_login():
+    url = 'https://www.cmoney.tw/identity/token'
+    resp = requests.post(url, data=request.form)
+    return Response(resp.content, status=resp.status_code, content_type=resp.headers.get('Content-Type'))
 
 if __name__ == "__main__":
     uvicorn.run(app, port=8000)

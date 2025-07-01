@@ -43,6 +43,8 @@ Yahoo奇摩股市、鉅亨網 (cnyes)、MoneyDJ 理財網、CMoney、經濟日�
 
 📌請一次回傳 8-12 組具代表性的搜尋關鍵字組合，並充分利用所有允許的網站。每個網站至少生成一個關鍵字。
 
+❗請優先產生『近一週』、『近一月』、『最新』等時間相關的新聞查詢組合，並盡量讓查詢結果聚焦於近期新聞。
+
 輸入資訊：
 - 公司名稱：{{ company_name }}
 - 股票代號：{{ stock_id }}
@@ -396,7 +398,8 @@ def search_news_single_group(company_name: str, stock_id: str, intent: str, keyw
             
             payload = {
                 "q": search_query,
-                "num": 10  # 每組搜尋10個結果
+                "num": 10,  # 每組搜尋10個結果
+                "domain": ",".join(ALLOWED_SITES)
             }
             
             response = requests.post(url, headers=headers, json=payload, timeout=30)
@@ -503,7 +506,8 @@ def search_news(company_name: str, stock_id: str, intent: str, keywords: List[st
             
             payload = {
                 "q": keyword,
-                "num": 10  # 每個關鍵詞搜尋10個結果
+                "num": 10,  # 每個關鍵詞搜尋10個結果
+                "domain": ",".join(ALLOWED_SITES)
             }
             
             response = requests.post(url, headers=headers, json=payload, timeout=10)

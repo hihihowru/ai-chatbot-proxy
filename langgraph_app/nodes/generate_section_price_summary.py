@@ -1,143 +1,203 @@
-import openai
 import json
-from typing import List, Dict
-import os
+import pandas as pd
+import numpy as np
+from typing import Dict, Any, List
+from finlab import data
 
-def generate_price_summary_section(company_name: str, stock_id: str, news_summary: str, news_sources: List[Dict] = None) -> Dict:
+def generate_price_summary_section(stock_list: List[int]) -> Dict[str, Any]:
     """
-    產生股價異動總結 section
+    產生股價摘要 section，計算報酬率並輸出表格
     
     Args:
-        company_name: 公司名稱
-        stock_id: 股票代號
-        news_summary: 新聞摘要
-        news_sources: 新聞來源列表
+        stock_list: 自選股清單 (數字 list)
     
     Returns:
-        股價異動總結 section 的 JSON 格式
+        Dict 包含 success 和 section 資訊
     """
     try:
-        print(f"[DEBUG] 開始產生 section: 股價異動總結")
-        print(f"[DEBUG] 公司名稱: {company_name}")
-        print(f"[DEBUG] 股票代號: {stock_id}")
-        print(f"[DEBUG] 新聞摘要長度: {len(news_summary)}")
-        print(f"[DEBUG] 新聞來源數量: {len(news_sources) if news_sources else 0}")
+        print(f"[DEBUG] 開始產生股價摘要，股票清單: {stock_list}")
         
-        # 準備來源資訊
-        source_info = ""
-        if news_sources and isinstance(news_sources, list):
-            source_info = "\n\n參考來源：\n"
-            for i, source in enumerate(news_sources[:5], 1):  # 只取前5個來源
-                if isinstance(source, dict):
-                    title = source.get("title", "無標題")
-                    link = source.get("link", "")
-                    source_info += f"{i}. {title} [來源{i}]\n"
-                else:
-                    source_info += f"{i}. {str(source)} [來源{i}]\n"
-        
-        prompt = f"""
-你是一位專業的股票分析師，請根據以下新聞摘要，為 {company_name}({stock_id}) 產生股價異動總結。
-
-請分析以下三個面向：
-1. 近期漲跌主因：分析股價變動的主要原因
-2. 法人動向：分析外資、投信、自營商的買賣動向
-3. 技術面觀察：分析技術指標、支撐壓力位等
-
-新聞摘要：
-{news_summary}
-
-請回傳 JSON 格式如下，並在每個 content 後面加上來源標記 [來源X]：
-{{
-  "section": "股價異動總結",
-  "cards": [
-    {{ 
-      "title": "近期漲跌主因", 
-      "content": "根據新聞分析，{company_name}({stock_id})近期股價受到財報營收表現不佳的影響，盤後暴跌近19%。然而，股息殖利率超過5%，且上半年EPS創同期新高，市場對其未來營運動能持樂觀態度，因此有特定買盤介入支撐股價。 [來源1][來源2]"
-    }},
-    {{ 
-      "title": "法人動向", 
-      "content": "根據法人買賣動向，外資連續賣超{company_name}({stock_id})，顯示外資持續看空該股。然而，{company_name}股利連續配息12年，且上半年EPS表現優異，吸引投資人青睞，可能有投信及自營商介入買盤。 [來源3][來源4]"
-    }},
-    {{ 
-      "title": "技術面觀察", 
-      "content": "根據技術指標，{company_name}({stock_id})的股價目前處於下跌趨勢，但股息殖利率超過5%，可能提供一定支撐。投資人可留意月線保衛戰的表現，以及股價是否能突破壓力位。 [來源5]"
-    }}
-  ]
-}}
-
-**重要：**
-1. 只回傳 JSON，不要有任何其他文字！
-2. 在每個 content 後面加上對應的來源標記 [來源X]
-3. 根據實際新聞內容調整分析，不要完全照抄範例
-"""
-        
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3
-        )
-        
-        raw_content = response.choices[0].message.content.strip()
-        print(f"[DEBUG] LLM 原始回傳內容：\n{raw_content}")
-        
+        # 確保 finlab 已登入
         try:
-            parsed_content = json.loads(raw_content)
-            print(f"[DEBUG] 解析後內容：{json.dumps(parsed_content, ensure_ascii=False, indent=2)}")
-            print(f"[DEBUG] 合併 section: 股價異動總結")
-            return {
-                "success": True,
-                "section": parsed_content,
-                "raw_content": raw_content
-            }
-        except json.JSONDecodeError as e:
-            print(f"[DEBUG] JSON 解析失敗: {e}")
-            # 回傳預設內容
-            default_section = {
-                "section": "股價異動總結",
-                "cards": [
-                    {"title": "近期漲跌主因", "content": "根據市場消息分析，股價變動主要受市場情緒和法人動向影響。 [來源1]"},
-                    {"title": "法人動向", "content": "需進一步觀察外資、投信等法人買賣動向。 [來源2]"},
-                    {"title": "技術面觀察", "content": "建議關注技術指標變化，設定適當的支撐壓力位。 [來源3]"}
-                ]
-            }
+            import finlab
+            api_token = 'AOl10aUjuRAwxdHjbO25jGoH7c8LOhXqKz/HgT9WlcCPkBwL8Qp6PDlqpd59YuR7#vip_m'
+            finlab.login(api_token=api_token)
+            
+            # 測試 finlab 連線
+            test_data = data.get('price:收盤價')
+            print(f"[DEBUG] Finlab 連線成功，price:收盤價 shape: {test_data.shape}")
+        except Exception as e:
+            print(f"[ERROR] Finlab 連線失敗: {e}")
             return {
                 "success": False,
-                "section": default_section,
-                "raw_content": raw_content,
-                "error": f"JSON 解析失敗: {e}"
+                "error": f"Finlab 連線失敗: {e}"
             }
+        
+        # 取得收盤價資料
+        close_data = data.get('price:收盤價')
+        print(f"[DEBUG] 取得收盤價資料，shape: {close_data.shape}")
+        
+        # 取得公司基本資訊（用於取得公司名稱）
+        basic_info = data.get('company_basic_info')
+        
+        # 將 stock_list 轉為字串，用於比對
+        stock_list_str = [str(stock_id) for stock_id in stock_list]
+        print(f"[DEBUG] 轉換後的股票代號: {stock_list_str}")
+        
+        # 過濾出有資料的股票
+        available_stocks = [stock for stock in stock_list_str if stock in close_data.columns]
+        print(f"[DEBUG] 有收盤價資料的股票: {available_stocks}")
+        
+        if len(available_stocks) == 0:
+            return {
+                "success": False,
+                "error": "找不到指定股票的收盤價資料"
+            }
+        
+        # 計算報酬率
+        price_summary_data = []
+        
+        for stock_id in available_stocks:
+            try:
+                # 取得該股票的收盤價序列
+                stock_prices = close_data[stock_id].dropna()
+                
+                if len(stock_prices) < 20:  # 至少要有20天資料
+                    print(f"[WARNING] 股票 {stock_id} 資料不足，跳過")
+                    continue
+                
+                # 取得最新日期和歷史日期
+                latest_date = stock_prices.index[-1]
+                latest_price = stock_prices.iloc[-1]
+
+                def get_price_n_days_ago(prices, n):
+                    if len(prices) > n:
+                        return prices.iloc[-n-1]
+                    return None
+
+                price_1d_ago = get_price_n_days_ago(stock_prices, 1)
+                price_1w_ago = get_price_n_days_ago(stock_prices, 5)
+                price_1m_ago = get_price_n_days_ago(stock_prices, 20)
+                price_1y_ago = get_price_n_days_ago(stock_prices, 240)
+
+                def calc_change(now, before):
+                    if now is not None and before is not None and before != 0:
+                        return (now - before) / before * 100
+                    return None
+
+                change_1d = calc_change(latest_price, price_1d_ago)
+                change_1w = calc_change(latest_price, price_1w_ago)
+                change_1m = calc_change(latest_price, price_1m_ago)
+                change_1y = calc_change(latest_price, price_1y_ago)
+
+                # 計算各期間報酬率
+                returns = {}
+                periods = [1, 5, 20, 60, 240]
+                
+                for period in periods:
+                    if len(stock_prices) > period:
+                        historical_price = stock_prices.iloc[-period-1]
+                        if historical_price != 0:
+                            return_rate = (latest_price - historical_price) / historical_price * 100
+                            returns[f"{period}日報酬"] = return_rate
+                        else:
+                            returns[f"{period}日報酬"] = 0
+                    else:
+                        returns[f"{period}日報酬"] = None
+                
+                # 取得公司名稱
+                company_name = "未知"
+                if stock_id in basic_info['stock_id'].values:
+                    company_row = basic_info[basic_info['stock_id'] == stock_id]
+                    if len(company_row) > 0:
+                        company_name = company_row.iloc[0].get('公司簡稱', company_row.iloc[0].get('公司名稱', '未知'))
+                
+                # 建立股票資料
+                stock_data = {
+                    "stock_id": stock_id,
+                    "company_name": company_name,
+                    "close": latest_price,
+                    "close_date": str(latest_date)[:10],
+                    "change_1d": change_1d,
+                    "change_1w": change_1w,
+                    "change_1m": change_1m,
+                    "change_1y": change_1y,
+                    **returns
+                }
+                price_summary_data.append(stock_data)
+                
+            except Exception as e:
+                print(f"[ERROR] 處理股票 {stock_id} 時發生錯誤: {e}")
+                continue
+        
+        if len(price_summary_data) == 0:
+            return {
+                "success": False,
+                "error": "無法計算任何股票的報酬率"
+            }
+        
+        # 建立表格內容
+        table_content = "股價摘要（變動趨勢）\n\n"
+        table_content += "統計區間：1日 / 5日 / 20日 / 60日 / 240日 報酬率\n"
+        table_content += "股票代號\t公司名稱\t1日報酬\t5日報酬\t20日報酬\t60日報酬\t240日報酬\n"
+        
+        for stock_data in price_summary_data:
+            table_content += f"{stock_data['stock_id']}\t{stock_data['company_name']}\t"
             
-    except Exception as e:
-        print(f"[generate_price_summary_section ERROR] {e}")
-        # 回傳預設內容
-        default_section = {
-            "section": "股價異動總結",
+            # 格式化報酬率
+            for period in ["1日報酬", "5日報酬", "20日報酬", "60日報酬", "240日報酬"]:
+                if stock_data[period] is not None:
+                    sign = "+" if stock_data[period] >= 0 else ""
+                    table_content += f"{sign}{stock_data[period]:.1f}%\t"
+                else:
+                    table_content += "N/A\t"
+            
+            table_content += "\n"
+        
+        # 建立 section 結構
+        section = {
+            "title": "股價摘要",
+            "content": table_content,
             "cards": [
-                {"title": "近期漲跌主因", "content": "資料處理中，請稍後查看。"},
-                {"title": "法人動向", "content": "資料處理中，請稍後查看。"},
-                {"title": "技術面觀察", "content": "資料處理中，請稍後查看。"}
+                {
+                    "title": "股價變動趨勢",
+                    "content": table_content,
+                    "type": "table",
+                    "data": price_summary_data  # 原始資料供前端使用
+                }
+            ],
+            "sources": [
+                {
+                    "name": "Finlab 收盤價資料",
+                    "url": "https://finlab.tw/",
+                    "description": "台股收盤價歷史資料"
+                }
             ]
         }
+        
+        # 調試：檢查 section 結構
+        print(f"[DEBUG] 股價摘要 section 結構:")
+        print(f"[DEBUG] cards[0].type: {section['cards'][0]['type']}")
+        print(f"[DEBUG] cards[0].data 存在: {'data' in section['cards'][0]}")
+        print(f"[DEBUG] cards[0].data 長度: {len(section['cards'][0]['data']) if 'data' in section['cards'][0] else 'N/A'}")
+        print(f"[DEBUG] cards[0].data 範例: {section['cards'][0]['data'][0] if 'data' in section['cards'][0] and len(section['cards'][0]['data']) > 0 else 'N/A'}")
+        
+        print(f"[DEBUG] 股價摘要 section 建立完成，包含 {len(price_summary_data)} 檔股票")
+        return {
+            "success": True,
+            "section": section,
+            "price_data": price_summary_data  # 額外回傳供其他 section 使用
+        }
+        
+    except Exception as e:
+        print(f"[ERROR] 產生股價摘要時發生錯誤: {e}")
         return {
             "success": False,
-            "section": default_section,
-            "error": str(e)
+            "error": f"產生股價摘要時發生錯誤: {e}"
         }
 
 # 測試用
 if __name__ == "__main__":
-    test_news = """
-    1. 台股今日反彈大漲逾400點，站回2萬2,000點大關，三大法人全站買方，買超台股339.05億元，外資則是由賣轉買，買超291.84億元，其中買進聯電（2303）高達3.5萬張居冠。
-    2. 聯電(2303)法說會重點整理：EPS創19季低、估第二季毛利回升，毛利率下滑至26.7%，跌破3成，創下近年低點。
-    """
-    
-    test_sources = [
-        {"title": "台股大漲400點", "link": "https://example.com/1"},
-        {"title": "聯電法說會重點", "link": "https://example.com/2"},
-        {"title": "外資買超291億", "link": "https://example.com/3"}
-    ]
-    
-    result = generate_price_summary_section("聯電", "2303", test_news, test_sources)
+    test_stock_list = [2303, 2330]
+    result = generate_price_summary_section(test_stock_list)
     print(json.dumps(result, ensure_ascii=False, indent=2)) 

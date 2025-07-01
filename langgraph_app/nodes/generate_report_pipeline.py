@@ -7,7 +7,7 @@ import openai
 # 添加父目錄到 path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from langgraph_app.nodes.generate_section_price_summary import generate_price_summary_section
+from langgraph_app.nodes.generate_section_price_movement import generate_price_movement_section
 from langgraph_app.nodes.generate_section_financial import generate_financial_section
 from langgraph_app.nodes.generate_section_strategy import generate_strategy_section
 from langgraph_app.nodes.generate_section_notice import generate_notice_section
@@ -59,11 +59,25 @@ def generate_report_pipeline(
         # 1. 產生股價異動總結
         print(f"\n[DEBUG] ===== 步驟 1: 產生股價異動總結 =====")
         logs.append("步驟 1: 產生股價異動總結")
-        price_result = generate_price_summary_section(company_name, stock_id, news_summary, news_sources)
+        price_result = generate_price_movement_section(company_name, stock_id, news_summary, news_sources)
         if price_result.get("success"):
             print(f"[DEBUG] append 股價異動總結 section: {json.dumps(price_result['section'], ensure_ascii=False)}")
-            # 添加 sources 資訊到 section
-            price_result["section"]["sources"] = news_sources
+            # 只萃取實際用到的來源
+            used_indices = set()
+            for card in price_result["section"].get("cards", []):
+                # 找出所有 [來源X]
+                import re
+                matches = re.findall(r"\[來源(\d+)\]", card.get("content", ""))
+                for m in matches:
+                    try:
+                        idx = int(m) - 1
+                        if news_sources and 0 <= idx < len(news_sources):
+                            used_indices.add(idx)
+                    except Exception:
+                        pass
+            # 按照出現順序組成 sources 陣列
+            sources = [news_sources[i] for i in sorted(used_indices)] if news_sources else []
+            price_result["section"]["sources"] = sources
             all_sections.append(price_result["section"])
             section_results["股價異動總結"] = price_result
             logs.append("✅ 股價異動總結產生成功")
