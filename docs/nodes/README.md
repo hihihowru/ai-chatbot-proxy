@@ -2,6 +2,24 @@
 
 ## Watchlist Summary (自選股摘要)
 
+### 完整流程概述
+自選股摘要功能透過 `generate_watchlist_summary_pipeline` 整合 6 個核心模組，按順序執行：
+
+1. **產業分布統計** → 2. **產業比較** → 3. **股價摘要** → 4. **報酬率統計分析** → 5. **異動焦點個股** → 6. **智能新聞搜尋與摘要**
+
+**執行順序與整合**：
+- 步驟 1：產生產業分布統計 section
+- 步驟 1.5：產生自選股 vs 同產業指數表現 section  
+- 步驟 2：產生股價摘要 section
+- 步驟 3：產生報酬率統計分析 section
+- 步驟 4：產生異動焦點個股 section（包含智能新聞搜尋）
+- 最終整合：將所有 sections 合併為完整的自選股摘要回應
+
+**資料流向**：
+- 輸入：自選股 stock_list
+- 中間處理：各模組獨立執行，產生對應 section
+- 輸出：包含 4-5 個 sections 的完整 WatchlistResponse
+
 ### 1. 產業分布統計 (Industry Distribution)
 - **內容組成**：統計自選股清單中各產業類別的分布。
 - **資料來源**：Finlab company_basic_info。
