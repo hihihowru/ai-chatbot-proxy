@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import requests
 import uvicorn
 from flask import Flask, request, Response
+import os
 
 app = FastAPI()
 
@@ -12,6 +13,8 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+
+API_BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:8000')
 
 @app.get("/proxy-news")
 def proxy_news(stockId: str = Query(...)):

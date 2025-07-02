@@ -6,6 +6,9 @@ import requests
 import json
 from typing import List, Dict, Any
 from .template_mapping import get_table_id, build_api_url, validate_template
+import os
+
+API_BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:8000')
 
 class DatabaseQuery:
     def __init__(self):

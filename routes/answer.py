@@ -28,6 +28,8 @@ import httpx
 
 router = APIRouter()
 
+API_BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:8000')
+
 @router.post("/answer", response_model=AnswerResponse)
 async def answer(req: AnswerRequest):
     logs = list(generate_logs())
