@@ -23,6 +23,31 @@ def generate_watchlist_summary_pipeline(stock_list: List[int]) -> Dict[str, Any]
         all_sections = []
         logs = []
         
+        # 0. Mock 社群討論統計 section
+        discussion_stats_section = {
+            "title": "社群討論統計",
+            "type": "discussion_stats",
+            "content": "",
+            "cards": [
+                {
+                    "title": "社群討論統計",
+                    "type": "discussion_stats",
+                    "data": {
+                        "discussion_count": 5,
+                        "comment_count": 61,
+                        "emotions": [
+                            {"type": "正面", "post": 2, "comment": 14},
+                            {"type": "中性", "post": 3, "comment": 47},
+                            {"type": "負面", "post": 0, "comment": 0}
+                        ],
+                        "market_label": "市場過熱警示"
+                    }
+                }
+            ],
+            "sources": []
+        }
+        all_sections.insert(0, discussion_stats_section)
+        
         # 1. 產生產業分布統計
         print(f"\n[DEBUG] ===== 步驟 1: 產生產業分布統計 =====")
         logs.append("步驟 1: 產生產業分布統計")
