@@ -125,23 +125,23 @@ def generate_report_pipeline(
             all_sections.append(strategy_result["section"])  # 使用預設內容
             logs.append("❌ 投資策略建議產生失敗，使用預設內容")
         
-        # 4. 產生社群輿情觀察
-        print(f"\n[DEBUG] ===== 步驟 4: 產生社群輿情觀察 =====")
-        logs.append("步驟 4: 產生社群輿情觀察")
+        # 4. 產生爆料同學會輿情分析
+        print(f"\n[DEBUG] ===== 步驟 4: 產生爆料同學會輿情分析 =====")
+        logs.append("步驟 4: 產生爆料同學會輿情分析")
         sentiment_result = generate_social_sentiment_section(company_name, stock_id)
         if sentiment_result.get("success"):
-            print(f"[DEBUG] append 社群輿情觀察 section: {json.dumps(sentiment_result['section'], ensure_ascii=False)}")
+            print(f"[DEBUG] append 爆料同學會輿情分析 section: {json.dumps(sentiment_result['section'], ensure_ascii=False)}")
             # 添加 sources 資訊到 section
             sentiment_result["section"]["sources"] = []
             all_sections.append(sentiment_result["section"])
-            section_results["社群輿情觀察"] = sentiment_result
-            logs.append("✅ 社群輿情觀察產生成功")
-            print(f"[DEBUG] ✅ 社群輿情觀察產生成功")
+            section_results["爆料同學會輿情分析"] = sentiment_result
+            logs.append("✅ 爆料同學會輿情分析產生成功")
+            print(f"[DEBUG] ✅ 爆料同學會輿情分析產生成功")
         else:
-            print(f"[DEBUG] ❌ 社群輿情觀察產生失敗: {sentiment_result.get('error', '未知錯誤')}")
+            print(f"[DEBUG] ❌ 爆料同學會輿情分析產生失敗: {sentiment_result.get('error', '未知錯誤')}")
             sentiment_result["section"]["sources"] = []
             all_sections.append(sentiment_result["section"])  # 使用預設內容
-            logs.append("❌ 社群輿情觀察產生失敗，使用預設內容")
+            logs.append("❌ 爆料同學會輿情分析產生失敗，使用預設內容")
         
         # 5. 產生操作注意事項
         print(f"\n[DEBUG] ===== 步驟 5: 產生操作注意事項 =====")

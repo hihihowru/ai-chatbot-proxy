@@ -281,7 +281,7 @@ def analyze_sentiment(text: str) -> str:
 
 def generate_social_sentiment_section(company_name: str, stock_id: str) -> Dict:
     """
-    產生同學會輿情分析 section
+    產生爆料同學會輿情分析 section
     
     Args:
         company_name: 公司名稱
@@ -291,7 +291,7 @@ def generate_social_sentiment_section(company_name: str, stock_id: str) -> Dict:
         輿情分析 section 的 JSON 格式
     """
     try:
-        print(f"[DEBUG] 🎯 開始產生同學會輿情分析 section")
+        print(f"[DEBUG] 🎯 開始產生爆料同學會輿情分析 section")
         print(f"[DEBUG] 公司名稱: {company_name}")
         print(f"[DEBUG] 股票代號: {stock_id}")
         
@@ -303,10 +303,10 @@ def generate_social_sentiment_section(company_name: str, stock_id: str) -> Dict:
             return {
                 "success": False,
                 "section": {
-                    "section": "社群輿情觀察",
+                    "title": "爆料同學會輿情分析",
                     "cards": [
                         {
-                            "title": "社群討論熱度",
+                            "title": "過去48小時內",
                             "content": [
                                 {
                                     "text": f"目前 {company_name}({stock_id}) 在股市爆料同學會的討論熱度不高，暫無明確的社群輿情觀察。"
@@ -323,6 +323,7 @@ def generate_social_sentiment_section(company_name: str, stock_id: str) -> Dict:
         
         # 2. 分析情緒
         sentiment_counts = {"positive": 0, "negative": 0, "neutral": 0}
+        sentiment_reply_counts = {"positive": 0, "negative": 0, "neutral": 0}
         analyzed_posts = []
         
         for post in posts:
@@ -342,183 +343,182 @@ def generate_social_sentiment_section(company_name: str, stock_id: str) -> Dict:
             
             post["sentiment"] = final_sentiment
             sentiment_counts[final_sentiment] += 1
+            sentiment_reply_counts[final_sentiment] += post.get("reply_count", 0)
             analyzed_posts.append(post)
         
         print(f"[DEBUG] 📈 情緒分析結果: 正向 {sentiment_counts['positive']}, 負向 {sentiment_counts['negative']}, 中立 {sentiment_counts['neutral']}")
         
         # 3. 找出熱門討論
         sorted_posts = sorted(analyzed_posts, key=lambda x: x.get("reply_count", 0), reverse=True)
-        hot_posts = sorted_posts[:3]  # 取前3個最熱門的
+        hot_posts = sorted_posts[:5]  # 取前5個最熱門的
         
         # 4. 計算討論熱度
         total_posts = len(posts)
         total_replies = sum(post.get("reply_count", 0) for post in posts)
         
-        # 5. 生成輿情摘要
+        # 5. 生成輿情摘要和標籤
         sentiment_summary = ""
+        tags = []
+        
         if total_posts > 0:
             positive_ratio = sentiment_counts["positive"] / total_posts
             negative_ratio = sentiment_counts["negative"] / total_posts
             neutral_ratio = sentiment_counts["neutral"] / total_posts
             
-            if positive_ratio > 0.5:
+            if positive_ratio > 0.6:
                 sentiment_summary = "社群對該股偏樂觀"
-            elif negative_ratio > 0.5:
-                sentiment_summary = "社群對該股偏保守"
-            elif positive_ratio > negative_ratio:
+                tags.append("市場樂觀")
+            elif positive_ratio > 0.4:
                 sentiment_summary = "社群對該股略偏樂觀"
-            elif negative_ratio > positive_ratio:
+                tags.append("市場樂觀")
+            elif negative_ratio > 0.6:
+                sentiment_summary = "社群對該股偏保守"
+                tags.append("市場悲觀")
+            elif negative_ratio > 0.4:
                 sentiment_summary = "社群對該股略偏保守"
+                tags.append("市場悲觀")
             else:
                 sentiment_summary = "社群對該股意見分歧"
+                tags.append("市場分歧")
+            
+            # 根據討論熱度添加標籤
+            if total_posts > 15:
+                tags.append("討論熱烈")
+            elif total_posts < 5:
+                tags.append("討論冷清")
+            
+            # 根據情緒極端程度添加標籤
+            if positive_ratio > 0.7:
+                tags.append("市場過熱警示")
+            elif negative_ratio > 0.7:
+                tags.append("市場恐慌")
         else:
             sentiment_summary = "社群討論熱度不高"
+            tags.append("討論冷清")
         
-        # 6. 使用 LLM 生成最終報告
-        hot_posts_text = ""
-        for i, post in enumerate(hot_posts, 1):
-            hot_posts_text += f"{i}. 標題: {post.get('title', '無標題')}\n"
-            hot_posts_text += f"   內容: {post.get('content', '無內容')[:100]}...\n"
-            hot_posts_text += f"   情緒: {post.get('sentiment', 'neutral')}\n"
-            hot_posts_text += f"   留言數: {post.get('reply_count', 0)}\n\n"
+        # 6. 構建新的卡片結構
+        cards = []
         
-        prompt = f"""
-你是一位專業的投資分析師，請根據以下同學會討論區的資料，為 {company_name}({stock_id}) 生成社群輿情觀察報告。
-
-討論統計：
-- 總貼文數: {total_posts}
-- 總留言數: {total_replies}
-- 情緒分布: 正向 {sentiment_counts['positive']} 篇, 負向 {sentiment_counts['negative']} 篇, 中立 {sentiment_counts['neutral']} 篇
-
-熱門討論：
-{hot_posts_text}
-
-請生成客觀、中立的輿情觀察報告，包含：
-1. 討論熱度分析
-2. 情緒分布分析
-3. 熱門討論主題摘要
-4. 社群觀察結論
-
-請回傳 JSON 格式：
-{{
-  "section": "社群輿情觀察",
-  "cards": [
-    {{
-      "title": "討論熱度分析",
-      "content": [
-        {{
-          "text": "過去48小時內，{company_name}({stock_id})在股市爆料同學會共有{total_posts}篇相關討論，總留言數達{total_replies}則。"
-        }},
-        {{
-          "text": "相比平均討論熱度，目前討論熱度{'偏高' if total_posts > 10 else '偏低'}。"
-        }}
-      ]
-    }},
-    {{
-      "title": "情緒分布分析",
-      "content": [
-        {{
-          "text": "社群情緒分布：正向 {sentiment_counts['positive']}篇({positive_ratio:.1%})、負向 {sentiment_counts['negative']}篇({negative_ratio:.1%})、中立 {sentiment_counts['neutral']}篇({neutral_ratio:.1%})。"
-        }},
-        {{
-          "text": "整體而言，{sentiment_summary}。"
-        }}
-      ]
-    }},
-    {{
-      "title": "熱門討論主題",
-      "content": [
-        {{
-          "text": "最受關注的討論主題包括："
-        }}
-      ]
-    }}
-  ]
-}}
-
-請根據實際資料調整內容，保持客觀中立。
-"""
-        
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3
-        )
-        
-        raw_content = response.choices[0].message.content.strip()
-        print(f"[DEBUG] 🤖 LLM 原始回傳內容：\n{raw_content}")
-        
-        # 解析 JSON
-        try:
-            result = json.loads(raw_content)
-            
-            # 添加熱門討論的詳細內容
-            if result.get("cards") and len(result["cards"]) >= 3:
-                hot_discussion_card = result["cards"][2]
-                if hot_discussion_card.get("title") == "熱門討論主題":
-                    for i, post in enumerate(hot_posts, 1):
-                        hot_discussion_card["content"].append({
-                            "text": f"**{i}. {post.get('title', '無標題')}**\n{post.get('content', '無內容')[:150]}...\n(留言數: {post.get('reply_count', 0)}, 情緒: {post.get('sentiment', 'neutral')})"
-                        })
-            
-            print(f"[DEBUG] ✅ 同學會輿情分析產生成功")
-            return {
-                "success": True,
-                "section": result,
-                "debug_info": {
-                    "total_posts": total_posts,
-                    "total_replies": total_replies,
-                    "sentiment_counts": sentiment_counts,
-                    "hot_posts_count": len(hot_posts)
-                }
-            }
-            
-        except json.JSONDecodeError as e:
-            print(f"[DEBUG] ❌ JSON 解析失敗: {e}")
-            # 返回預設內容
-            return {
-                "success": False,
-                "section": {
-                    "section": "社群輿情觀察",
-                    "cards": [
-                        {
-                            "title": "討論熱度分析",
-                            "content": [
-                                {
-                                    "text": f"過去48小時內，{company_name}({stock_id})在股市爆料同學會共有{total_posts}篇相關討論。"
-                                }
-                            ]
-                        },
-                        {
-                            "title": "情緒分布分析",
-                            "content": [
-                                {
-                                    "text": f"社群情緒分布：正向 {sentiment_counts['positive']}篇、負向 {sentiment_counts['negative']}篇、中立 {sentiment_counts['neutral']}篇。"
-                                },
-                                {
-                                    "text": f"整體而言，{sentiment_summary}。"
-                                }
-                            ]
-                        }
-                    ]
+        # 卡片1: 過去48小時統計
+        cards.append({
+            "title": "過去48小時內",
+            "content": [
+                {
+                    "text": f"📊 **{total_posts}** 篇討論"
                 },
-                "error": f"JSON 解析失敗: {e}"
+                {
+                    "text": f"💬 **{total_replies}** 總留言數"
+                }
+            ],
+            "type": "stats"
+        })
+        
+        # 卡片2: 情緒分布表格
+        sentiment_table_content = [
+            {
+                "text": "| 情緒種類 | 貼文數 | 留言數 |"
+            },
+            {
+                "text": "|---------|--------|--------|"
+            },
+            {
+                "text": f"| 正面 | {sentiment_counts['positive']} | {sentiment_reply_counts['positive']} |"
+            },
+            {
+                "text": f"| 負面 | {sentiment_counts['negative']} | {sentiment_reply_counts['negative']} |"
+            },
+            {
+                "text": f"| 中性 | {sentiment_counts['neutral']} | {sentiment_reply_counts['neutral']} |"
             }
+        ]
+        
+        cards.append({
+            "title": "情緒分布",
+            "content": sentiment_table_content,
+            "type": "table"
+        })
+        
+        # 卡片3: 標籤
+        if tags:
+            tags_content = [
+                {
+                    "text": "🏷️ **市場標籤**: " + " ".join([f"`{tag}`" for tag in tags])
+                }
+            ]
+            cards.append({
+                "title": "市場標籤",
+                "content": tags_content,
+                "type": "tags"
+            })
+        
+        # 卡片4: 用戶討論貼文縮圖
+        if hot_posts:
+            posts_content = [
+                {
+                    "text": "🔥 **熱門討論貼文**"
+                }
+            ]
+            
+            for i, post in enumerate(hot_posts, 1):
+                sentiment_emoji = {
+                    "positive": "😊",
+                    "negative": "😞", 
+                    "neutral": "😐"
+                }.get(post.get("sentiment", "neutral"), "😐")
+                
+                posts_content.append({
+                    "text": f"**{i}. {post.get('title', '無標題')}** {sentiment_emoji}\n"
+                           f"📝 {post.get('content', '無內容')[:100]}...\n"
+                           f"⏰ {post.get('time', '未知時間')} | 💬 {post.get('reply_count', 0)} 留言"
+                })
+            
+            cards.append({
+                "title": "用戶討論貼文",
+                "content": posts_content,
+                "type": "posts"
+            })
+        
+        # 7. 構建最終結果
+        result = {
+            "title": "爆料同學會輿情分析",
+            "content": f"根據股市爆料同學會的討論分析，{company_name}({stock_id})的社群輿情如下：",
+            "cards": cards,
+            "sources": [
+                {
+                    "name": "股市爆料同學會",
+                    "url": f"https://www.cmoney.tw/forum/stock/{stock_id}",
+                    "description": "股票討論社群"
+                }
+            ]
+        }
+        
+        print(f"[DEBUG] ✅ 爆料同學會輿情分析產生成功")
+        return {
+            "success": True,
+            "section": result,
+            "debug_info": {
+                "total_posts": total_posts,
+                "total_replies": total_replies,
+                "sentiment_counts": sentiment_counts,
+                "sentiment_reply_counts": sentiment_reply_counts,
+                "hot_posts_count": len(hot_posts),
+                "tags": tags
+            }
+        }
         
     except Exception as e:
-        print(f"[DEBUG] ❌ 同學會輿情分析失敗: {e}")
+        print(f"[DEBUG] ❌ 爆料同學會輿情分析失敗: {e}")
         return {
             "success": False,
             "section": {
-                "section": "社群輿情觀察",
+                "title": "爆料同學會輿情分析",
+                "content": f"目前 {company_name}({stock_id}) 在股市爆料同學會的討論熱度不高，暫無明確的社群輿情觀察。",
                 "cards": [
                     {
-                        "title": "社群討論熱度",
+                        "title": "過去48小時內",
                         "content": [
                             {
-                                "text": f"目前 {company_name}({stock_id}) 在股市爆料同學會的討論熱度不高，暫無明確的社群輿情觀察。"
+                                "text": "暫無討論資料"
                             }
                         ]
                     }

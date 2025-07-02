@@ -160,21 +160,21 @@ def test_integration_with_pipeline():
             # 檢查是否包含輿情分析 section
             sentiment_section = None
             for section in sections:
-                if section.get("section") == "社群輿情觀察":
+                if section.get("title") == "爆料同學會輿情分析":
                     sentiment_section = section
                     break
             
             if sentiment_section:
-                print("✅ 成功包含社群輿情觀察 section")
+                print("✅ 成功包含爆料同學會輿情分析 section")
                 print(f"  卡片數量: {len(sentiment_section.get('cards', []))}")
             else:
-                print("❌ 未找到社群輿情觀察 section")
-            
-            # 顯示所有 section 標題
-            print("📋 所有 section 標題:")
-            for i, section in enumerate(sections, 1):
-                print(f"  {i}. {section.get('section', '無標題')}")
+                print("❌ 未找到爆料同學會輿情分析 section")
                 
+                # 顯示所有 section 標題
+                print("📋 所有 section 標題:")
+                for i, section in enumerate(sections, 1):
+                    print(f"  {i}. {section.get('title', '無標題')}")
+                    
         else:
             print(f"❌ 報告生成失敗: {result.get('error', '未知錯誤')}")
             
