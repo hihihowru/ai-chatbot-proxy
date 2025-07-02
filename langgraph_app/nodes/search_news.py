@@ -29,7 +29,7 @@ ALLOWED_SITES = [
 
 PROMPT = '''你是一個專業投資分析助理，請根據使用者輸入的問題，自動生成一組精準的搜尋關鍵字，幫助查找最新且與台股相關的財經新聞或數據資訊。
 
-⚠️限制來源：請僅從下列網站中抓取內容（出現在標題、網址或來源中才納入）：
+⚠️限制來源：請僅從下列網站中抓取內容（API 會自動過濾，無需在關鍵字加 site:xxx）：
 Yahoo奇摩股市、鉅亨網 (cnyes)、MoneyDJ 理財網、CMoney、經濟日報、工商時報、ETtoday 財經、Goodinfo、財經M平方（MacroMicro）、Smart智富、科技新報、Nownews、MoneyLink 富聯網、股感 StockFeel、商業周刊、今周刊、PChome 股市頻道。
 
 🧠使用者輸入會包含「公司名稱 / 股票代碼 + 問題」，請根據這些資訊生成具備高資訊密度的查詢組合，並試著涵蓋以下主題：
@@ -41,7 +41,7 @@ Yahoo奇摩股市、鉅亨網 (cnyes)、MoneyDJ 理財網、CMoney、經濟日�
 - ETF、產業輪動、題材發酵
 - 分析師預估與目標價
 
-📌請一次回傳 8-12 組具代表性的搜尋關鍵字組合，並充分利用所有允許的網站。每個網站至少生成一個關鍵字。
+📌請一次回傳 8-12 組具代表性的搜尋關鍵字組合，無需加 site:xxx，API 會自動過濾。
 
 ❗請優先產生『近一週』、『近一月』、『最新』等時間相關的新聞查詢組合，並盡量讓查詢結果聚焦於近期新聞。
 
@@ -54,18 +54,18 @@ Yahoo奇摩股市、鉅亨網 (cnyes)、MoneyDJ 理財網、CMoney、經濟日�
 
 輸出格式為 JSON 陣列，請包含以下網站的關鍵字：
 [
-  "{{ company_name }} {{ stock_id }} 財報 site:tw.finance.yahoo.com",
-  "{{ company_name }} 外資買賣 site:cnyes.com",
-  "{{ stock_id }} 法人動向 site:moneydj.com",
-  "{{ company_name }} EPS 分析 site:cmoney.tw",
-  "{{ company_name }} 財經新聞 site:money.udn.com",
-  "{{ stock_id }} 工商時報 site:ctee.com.tw",
-  "{{ company_name }} 財經報導 site:finance.ettoday.net",
-  "{{ company_name }} 基本面 site:goodinfo.tw",
-  "{{ company_name }} 總體經濟 site:macromicro.me",
-  "{{ company_name }} 投資理財 site:smart.businessweekly.com.tw",
-  "{{ company_name }} 科技新聞 site:technews.tw",
-  "{{ company_name }} 即時新聞 site:nownews.com"
+  "{{ company_name }} {{ stock_id }} 財報",
+  "{{ company_name }} 外資買賣",
+  "{{ stock_id }} 法人動向",
+  "{{ company_name }} EPS 分析",
+  "{{ company_name }} 財經新聞",
+  "{{ stock_id }} 工商時報",
+  "{{ company_name }} 財經報導",
+  "{{ company_name }} 基本面",
+  "{{ company_name }} 總體經濟",
+  "{{ company_name }} 投資理財",
+  "{{ company_name }} 科技新聞",
+  "{{ company_name }} 即時新聞"
 ]
 '''
 
@@ -112,54 +112,52 @@ def generate_search_keywords(company_name: str, stock_id: str, intent: str, keyw
         return generate_fallback_keywords(company_name, stock_id, intent, keywords, time_info)
 
 def generate_fallback_keywords(company_name: str, stock_id: str, intent: str, keywords: List[str], time_info: str = '') -> List[str]:
-    """生成備用的搜尋關鍵字，充分利用所有允許的網站"""
+    """生成備用的搜尋關鍵字，不加 site:xxx"""
     fallback_keywords = []
-    
-    # 基礎組合 - 充分利用所有主要網站
     if company_name and stock_id:
         fallback_keywords.extend([
-            f"{company_name} {stock_id} 財報 site:tw.finance.yahoo.com",
-            f"{company_name} 外資買賣 site:cnyes.com",
-            f"{stock_id} 法人動向 site:moneydj.com",
-            f"{company_name} EPS 分析 site:cmoney.tw",
-            f"{company_name} 財經新聞 site:money.udn.com",
-            f"{stock_id} 工商時報 site:ctee.com.tw",
-            f"{company_name} 財經報導 site:finance.ettoday.net",
-            f"{company_name} 基本面 site:goodinfo.tw",
-            f"{company_name} 總體經濟 site:macromicro.me",
-            f"{company_name} 投資理財 site:smart.businessweekly.com.tw",
-            f"{company_name} 科技新聞 site:technews.tw",
-            f"{company_name} 即時新聞 site:nownews.com"
+            f"{company_name} {stock_id} 財報",
+            f"{company_name} 外資買賣",
+            f"{stock_id} 法人動向",
+            f"{company_name} EPS 分析",
+            f"{company_name} 財經新聞",
+            f"{stock_id} 工商時報",
+            f"{company_name} 財經報導",
+            f"{company_name} 基本面",
+            f"{company_name} 總體經濟",
+            f"{company_name} 投資理財",
+            f"{company_name} 科技新聞",
+            f"{company_name} 即時新聞"
         ])
     
     # 根據意圖添加特定關鍵字
     if "財報" in intent or "基本面" in intent:
         fallback_keywords.extend([
-            f"{company_name} 營收 毛利率 site:cmoney.tw",
-            f"{stock_id} 損益表 site:goodinfo.tw",
-            f"{company_name} 財務分析 site:tw.finance.yahoo.com"
+            f"{company_name} 營收 毛利率",
+            f"{stock_id} 損益表",
+            f"{company_name} 財務分析"
         ])
     
     if "籌碼" in intent or "法人" in intent:
         fallback_keywords.extend([
-            f"{stock_id} 三大法人 site:goodinfo.tw",
-            f"{company_name} 外資持股 site:cnyes.com",
-            f"{stock_id} 投信動向 site:moneydj.com"
+            f"{stock_id} 三大法人",
+            f"{company_name} 外資持股",
+            f"{stock_id} 投信動向"
         ])
     
     if "技術" in intent:
         fallback_keywords.extend([
-            f"{company_name} 技術分析 site:tw.finance.yahoo.com",
-            f"{stock_id} 技術線圖 site:cmoney.tw",
-            f"{company_name} 技術指標 site:goodinfo.tw"
+            f"{company_name} 技術分析",
+            f"{stock_id} 技術線圖",
+            f"{company_name} 技術指標"
         ])
     
     # 添加時間相關關鍵字
     if time_info:
         fallback_keywords.extend([
-            f"{company_name} {time_info} 新聞 site:cnyes.com",
-            f"{stock_id} {time_info} 報導 site:money.udn.com",
-            f"{company_name} {time_info} 分析 site:finance.ettoday.net"
+            f"{company_name} {time_info} 新聞",
+            f"{stock_id} {time_info} 報導",
+            f"{company_name} {time_info} 分析"
         ])
     
     # 添加年份相關關鍵字
@@ -167,9 +165,9 @@ def generate_fallback_keywords(company_name: str, stock_id: str, intent: str, ke
     last_year = "2024"
     if company_name:
         fallback_keywords.extend([
-            f"{company_name} {current_year} 財報 site:tw.finance.yahoo.com",
-            f"{company_name} {last_year} 損益表 site:cnyes.com",
-            f"{stock_id} {current_year} 法人動向 site:moneydj.com"
+            f"{company_name} {current_year} 財報",
+            f"{company_name} {last_year} 損益表",
+            f"{stock_id} {current_year} 法人動向"
         ])
     
     # 去除重複並限制數量
@@ -374,72 +372,33 @@ def search_news_single_group(company_name: str, stock_id: str, intent: str, keyw
     執行單組關鍵字的搜尋
     """
     try:
-        # 如果沒有提供 API key，嘗試從環境變數讀取
         if not serper_api_key:
             serper_api_key = os.getenv("SERPER_API_KEY")
-        
         if not serper_api_key:
-            return {
-                "success": False,
-                "error": "缺少 SERPER_API_KEY",
-                "results": []
-            }
-        
-        # 使用第一個關鍵字進行搜尋
+            return {"success": False, "error": "缺少 SERPER_API_KEY", "results": []}
         if keywords:
             search_query = keywords[0]
-            
-            # 發送搜尋請求
             url = "https://google.serper.dev/search"
-            headers = {
-                "X-API-KEY": serper_api_key,
-                "Content-Type": "application/json"
-            }
-            
+            headers = {"X-API-KEY": serper_api_key, "Content-Type": "application/json"}
             payload = {
                 "q": search_query,
-                "num": 10,  # 每組搜尋10個結果
-                "domain": ",".join(ALLOWED_SITES)
+                "num": 10,
+                "domains": ALLOWED_SITES  # 傳遞 domains 為 list
             }
-            
             response = requests.post(url, headers=headers, json=payload, timeout=30)
-            
             if response.status_code == 200:
                 data = response.json()
                 organic_results = data.get("organic", [])
-                
-                # 過濾結果
                 filtered_results = filter_results_by_site(organic_results)
-                
-                # 記錄搜尋結果
                 log_search_results(keywords, filtered_results)
-                
-                return {
-                    "success": True,
-                    "results": filtered_results,
-                    "search_keywords": keywords,
-                    "message": f"單組搜尋成功，關鍵字: {search_query}"
-                }
+                return {"success": True, "results": filtered_results, "search_keywords": keywords, "message": f"單組搜尋成功，關鍵字: {search_query}"}
             else:
-                return {
-                    "success": False,
-                    "error": f"API 請求失敗: {response.status_code}",
-                    "results": []
-                }
+                return {"success": False, "error": f"API 請求失敗: {response.status_code}", "results": []}
         else:
-            return {
-                "success": False,
-                "error": "沒有搜尋關鍵字",
-                "results": []
-            }
-            
+            return {"success": False, "error": "沒有搜尋關鍵字", "results": []}
     except Exception as e:
         print(f"[search_news_single_group ERROR] {e}")
-        return {
-            "success": False,
-            "error": f"單組搜尋失敗: {str(e)}",
-            "results": []
-        }
+        return {"success": False, "error": f"單組搜尋失敗: {str(e)}", "results": []}
 
 def remove_duplicate_results(results: List[Dict]) -> List[Dict]:
     """
@@ -461,12 +420,8 @@ def search_news(company_name: str, stock_id: str, intent: str, keywords: List[st
     使用 Serper API 搜尋新聞，並過濾來源網站（原始版本）
     """
     try:
-        # 生成搜尋關鍵詞
         search_keywords = generate_search_keywords(company_name, stock_id, intent, keywords, event_type, time_info)
-        
         print(f"🔍 生成的搜尋關鍵字: {search_keywords}")
-        
-        # 如果沒有提供 Serper API key，返回模擬結果
         if not serper_api_key:
             mock_results = [
                 {
@@ -487,31 +442,18 @@ def search_news(company_name: str, stock_id: str, intent: str, keywords: List[st
             
             log_search_results(search_keywords, mock_results)
             
-            return {
-                "success": True,
-                "search_keywords": search_keywords,
-                "results": mock_results,
-                "message": "使用模擬資料（請設定 Serper API key 以獲取真實搜尋結果）"
-            }
+            return {"success": True, "search_keywords": search_keywords, "results": mock_results, "message": "使用模擬資料（請設定 Serper API key 以獲取真實搜尋結果）"}
         
-        # 使用 Serper API 進行搜尋
         all_results = []
-        
         for keyword in search_keywords:
             url = "https://google.serper.dev/search"
-            headers = {
-                "X-API-KEY": serper_api_key,
-                "Content-Type": "application/json"
-            }
-            
+            headers = {"X-API-KEY": serper_api_key, "Content-Type": "application/json"}
             payload = {
                 "q": keyword,
-                "num": 10,  # 每個關鍵詞搜尋10個結果
-                "domain": ",".join(ALLOWED_SITES)
+                "num": 10,
+                "domains": ALLOWED_SITES  # 傳遞 domains 為 list
             }
-            
             response = requests.post(url, headers=headers, json=payload, timeout=10)
-            
             if response.status_code == 200:
                 data = response.json()
                 if "organic" in data:
@@ -519,27 +461,13 @@ def search_news(company_name: str, stock_id: str, intent: str, keywords: List[st
             else:
                 print(f"Serper API 請求失敗: {response.status_code}")
         
-        # 過濾結果
         filtered_results = filter_results_by_site(all_results)
-        
-        # 記錄搜尋結果
         log_search_results(search_keywords, filtered_results)
         
-        return {
-            "success": True,
-            "search_keywords": search_keywords,
-            "results": filtered_results[:15],  # 限制最多15個結果
-            "message": f"成功搜尋到 {len(filtered_results)} 個符合條件的結果"
-        }
-        
+        return {"success": True, "search_keywords": search_keywords, "results": filtered_results[:15], "message": f"成功搜尋到 {len(filtered_results)} 個符合條件的結果"}
     except Exception as e:
         print(f"[search_news ERROR] {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "search_keywords": [],
-            "results": []
-        }
+        return {"success": False, "error": str(e), "search_keywords": [], "results": []}
 
 def search_news_smart(company_name: str, stock_id: str, intent: str, keywords: List[str], serper_api_key: str = None, event_type: str = '', time_info: str = '', use_grouped: bool = True) -> Dict:
     """
