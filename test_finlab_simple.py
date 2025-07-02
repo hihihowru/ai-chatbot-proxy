@@ -6,13 +6,14 @@
 import finlab
 from finlab import data
 import pandas as pd
+import os
 
 def test_simple_finlab():
     """簡化測試 - 只取關鍵資料"""
     
     # 登入 FinLab API
-    api_token = 'AOl10aUjuRAwxdHjbO25jGoH7c8LOhXqKz/HgT9WlcCPkBwL8Qp6PDlqpd59YuR7#vip_m'
-    finlab.login(api_token=api_token)
+    api_key = os.environ['FINLAB_API_KEY']
+    finlab.login(api_token=api_key)
     
     print("=== 簡化測試 - 關鍵財務資料 ===")
     

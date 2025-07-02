@@ -1,7 +1,8 @@
 # pip install langgraph openai
-import langgraph
+from langgraph.graph import StateGraph, END
+from typing import Dict, Any
 
-def llm_node(state):
+def llm_node(state: Dict[str, Any]) -> Dict[str, Any]:
     question = state["question"]
     stockId = state["stockId"]
     role = state["role"]
@@ -15,8 +16,19 @@ def llm_node(state):
     }
 
 def summarize_with_llm(question, stockId, role):
-    graph = langgraph.Graph()
-    graph.add_node("llm", llm_node)
-    graph.set_entry_point("llm")
-    result = graph.run({"question": question, "stockId": stockId, "role": role})
+    # 創建狀態圖
+    workflow = StateGraph(Dict[str, Any])
+    
+    # 添加節點
+    workflow.add_node("llm", llm_node)
+    
+    # 設置入口點和結束點
+    workflow.set_entry_point("llm")
+    workflow.add_edge("llm", END)
+    
+    # 編譯圖
+    app = workflow.compile()
+    
+    # 運行
+    result = app.invoke({"question": question, "stockId": stockId, "role": role})
     return result["summaryCards"] 

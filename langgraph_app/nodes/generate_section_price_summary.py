@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from typing import Dict, Any, List
 from finlab import data
+import os
 
 def generate_price_summary_section(stock_list: List[int]) -> Dict[str, Any]:
     """
@@ -20,8 +21,8 @@ def generate_price_summary_section(stock_list: List[int]) -> Dict[str, Any]:
         # 確保 finlab 已登入
         try:
             import finlab
-            api_token = 'AOl10aUjuRAwxdHjbO25jGoH7c8LOhXqKz/HgT9WlcCPkBwL8Qp6PDlqpd59YuR7#vip_m'
-            finlab.login(api_token=api_token)
+            api_key = os.environ['FINLAB_API_KEY']
+            finlab.login(api_token=api_key)
             
             # 測試 finlab 連線
             test_data = data.get('price:收盤價')

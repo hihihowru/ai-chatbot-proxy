@@ -398,58 +398,30 @@ def generate_social_sentiment_section(company_name: str, stock_id: str) -> Dict:
         
         # 6. 構建新的卡片結構
         cards = []
-        
-        # 卡片1: 過去48小時統計
-        cards.append({
-            "title": "過去48小時內",
-            "content": [
-                {
-                    "text": f"📊 **{total_posts}** 篇討論"
-                },
-                {
-                    "text": f"💬 **{total_replies}** 總留言數"
-                }
-            ],
-            "type": "stats"
-        })
-        
-        # 卡片2: 情緒分布表格
-        sentiment_table_content = [
-            {
-                "text": "| 情緒種類 | 貼文數 | 留言數 |"
-            },
-            {
-                "text": "|---------|--------|--------|"
-            },
-            {
-                "text": f"| 正面 | {sentiment_counts['positive']} | {sentiment_reply_counts['positive']} |"
-            },
-            {
-                "text": f"| 負面 | {sentiment_counts['negative']} | {sentiment_reply_counts['negative']} |"
-            },
-            {
-                "text": f"| 中性 | {sentiment_counts['neutral']} | {sentiment_reply_counts['neutral']} |"
-            }
-        ]
-        
-        cards.append({
-            "title": "情緒分布",
-            "content": sentiment_table_content,
-            "type": "table"
-        })
-        
-        # 卡片3: 標籤
+        # 合併 stats, sentiment, tags 為一個橫向卡片
+        stats_line = f"📊 {total_posts} 篇討論"
+        replies_line = f"💬 {total_replies} 總留言數"
+        sentiment_table = (
+            "| 情緒種類 | 貼文數 | 留言數 |\n"
+            "|---------|--------|--------|\n"
+            f"| 正面 | {sentiment_counts['positive']} | {sentiment_reply_counts['positive']} |\n"
+            f"| 負面 | {sentiment_counts['negative']} | {sentiment_reply_counts['negative']} |\n"
+            f"| 中性 | {sentiment_counts['neutral']} | {sentiment_reply_counts['neutral']} |"
+        )
+        tags_line = ""
         if tags:
-            tags_content = [
-                {
-                    "text": "🏷️ **市場標籤**: " + " ".join([f"`{tag}`" for tag in tags])
-                }
-            ]
-            cards.append({
-                "title": "市場標籤",
-                "content": tags_content,
-                "type": "tags"
-            })
+            tags_line = "🏷️ 市場標籤: " + " ".join([f"`{tag}`" for tag in tags])
+        # 合併為一個卡片
+        cards.append({
+            "title": "輿情統計總覽",
+            "content": [
+                {"text": stats_line},
+                {"text": replies_line},
+                {"text": sentiment_table},
+                {"text": tags_line} if tags_line else {}
+            ],
+            "type": "summary-horizontal"
+        })
         
         # 卡片4: 用戶討論貼文縮圖
         if hot_posts:

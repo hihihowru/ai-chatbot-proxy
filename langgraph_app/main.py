@@ -862,8 +862,8 @@ def fetch_yahoo_financial_data(stock_id: str, company_name: str) -> Dict:
         import pandas as pd
         
         # 登入 FinLab API
-        api_token = os.getenv('FINLAB_API_TOKEN', 'AOl10aUjuRAwxdHjbO25jGoH7c8LOhXqKz/HgT9WlcCPkBwL8Qp6PDlqpd59YuR7#vip_m')
-        finlab.login(api_token=api_token)
+        api_key = os.environ['FINLAB_API_KEY']
+        finlab.login(api_token=api_key)
         
         print(f"[DEBUG] 使用 FinLab API 取得 {stock_id} 財務資料")
         
