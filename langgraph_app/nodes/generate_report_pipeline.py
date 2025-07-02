@@ -10,6 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from langgraph_app.nodes.generate_section_price_movement import generate_price_movement_section
 from langgraph_app.nodes.generate_section_financial import generate_financial_section
 from langgraph_app.nodes.generate_section_strategy import generate_strategy_section
+from langgraph_app.nodes.generate_section_social_sentiment import generate_social_sentiment_section
 from langgraph_app.nodes.generate_section_notice import generate_notice_section
 from langgraph_app.nodes.generate_section_sources import generate_sources_section
 from langgraph_app.nodes.generate_section_disclaimer import generate_disclaimer_section
@@ -124,9 +125,27 @@ def generate_report_pipeline(
             all_sections.append(strategy_result["section"])  # 使用預設內容
             logs.append("❌ 投資策略建議產生失敗，使用預設內容")
         
-        # 4. 產生操作注意事項
-        print(f"\n[DEBUG] ===== 步驟 4: 產生操作注意事項 =====")
-        logs.append("步驟 4: 產生操作注意事項")
+        # 4. 產生社群輿情觀察
+        print(f"\n[DEBUG] ===== 步驟 4: 產生社群輿情觀察 =====")
+        logs.append("步驟 4: 產生社群輿情觀察")
+        sentiment_result = generate_social_sentiment_section(company_name, stock_id)
+        if sentiment_result.get("success"):
+            print(f"[DEBUG] append 社群輿情觀察 section: {json.dumps(sentiment_result['section'], ensure_ascii=False)}")
+            # 添加 sources 資訊到 section
+            sentiment_result["section"]["sources"] = []
+            all_sections.append(sentiment_result["section"])
+            section_results["社群輿情觀察"] = sentiment_result
+            logs.append("✅ 社群輿情觀察產生成功")
+            print(f"[DEBUG] ✅ 社群輿情觀察產生成功")
+        else:
+            print(f"[DEBUG] ❌ 社群輿情觀察產生失敗: {sentiment_result.get('error', '未知錯誤')}")
+            sentiment_result["section"]["sources"] = []
+            all_sections.append(sentiment_result["section"])  # 使用預設內容
+            logs.append("❌ 社群輿情觀察產生失敗，使用預設內容")
+        
+        # 5. 產生操作注意事項
+        print(f"\n[DEBUG] ===== 步驟 5: 產生操作注意事項 =====")
+        logs.append("步驟 5: 產生操作注意事項")
         notice_result = generate_notice_section(company_name, stock_id, news_summary)
         if notice_result.get("success"):
             print(f"[DEBUG] append 操作注意事項 section: {json.dumps(notice_result['section'], ensure_ascii=False)}")
@@ -142,9 +161,9 @@ def generate_report_pipeline(
             all_sections.append(notice_result["section"])  # 使用預設內容
             logs.append("❌ 操作注意事項產生失敗，使用預設內容")
         
-        # 5. 產生資料來源
-        print(f"\n[DEBUG] ===== 步驟 5: 產生資料來源 =====")
-        logs.append("步驟 5: 產生資料來源")
+        # 6. 產生資料來源
+        print(f"\n[DEBUG] ===== 步驟 6: 產生資料來源 =====")
+        logs.append("步驟 6: 產生資料來源")
         sources_result = generate_sources_section(news_sources, financial_sources)
         if sources_result.get("success"):
             print(f"[DEBUG] append 資料來源 section: {json.dumps(sources_result['section'], ensure_ascii=False)}")
@@ -157,9 +176,9 @@ def generate_report_pipeline(
             all_sections.append(sources_result["section"])  # 使用預設內容
             logs.append("❌ 資料來源產生失敗，使用預設內容")
         
-        # 6. 產生免責聲明
-        print(f"\n[DEBUG] ===== 步驟 6: 產生免責聲明 =====")
-        logs.append("步驟 6: 產生免責聲明")
+        # 7. 產生免責聲明
+        print(f"\n[DEBUG] ===== 步驟 7: 產生免責聲明 =====")
+        logs.append("步驟 7: 產生免責聲明")
         disclaimer_result = generate_disclaimer_section()
         if disclaimer_result.get("success"):
             print(f"[DEBUG] append 免責聲明 section: {json.dumps(disclaimer_result['section'], ensure_ascii=False)}")
@@ -172,8 +191,8 @@ def generate_report_pipeline(
             all_sections.append(disclaimer_result["section"])  # 使用預設內容
             logs.append("❌ 免責聲明產生失敗，使用預設內容")
         
-        # 7. 合併所有 section
-        print(f"\n[DEBUG] ===== 步驟 7: 合併所有 section =====")
+        # 8. 合併所有 section
+        print(f"\n[DEBUG] ===== 步驟 8: 合併所有 section =====")
         print(f"[DEBUG] 總共產生 {len(all_sections)} 個 section")
         
         # 直接回傳 list 結構，順序即為 UI 順序
