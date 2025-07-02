@@ -1,6 +1,7 @@
 # 個股分析流程架構圖
 
 ```mermaid
+
 graph TB
     %% 用戶層
     User[👤 用戶] --> Frontend[ 前端 React/Next.js]
@@ -81,5 +82,4 @@ graph TB
     class DetectStocks,DetectTime,DetectChart,ClassifyExtract,NewsSearch,FinancialData,ReportPipeline apiLayer
     class PriceSummary,FinancialSection,StrategySection,NoticeSection,SourcesSection,DisclaimerSection,LLMStrategy,SummaryTable,StrategyResult dataLayer
     class SerperAPI,YahooFinance,FinLabAPI,CMoneyDB externalLayer
-
 ```
