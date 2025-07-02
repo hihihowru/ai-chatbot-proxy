@@ -4,7 +4,4 @@ builder = "nixpacks"
 [deploy]
 healthcheckPath = "/docs"
 healthcheckTimeout = 300
-restartPolicyType = "on_failure"
-
-[deploy.variables]
-PORT = "8000" 
+restartPolicyType = "on_failure" 
