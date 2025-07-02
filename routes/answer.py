@@ -2,6 +2,8 @@ from fastapi import APIRouter, Form, Header
 from typing import Optional
 import sys
 import os
+from fastapi.responses import StreamingResponse
+import json
 
 # 添加專案根目錄到 Python 路徑
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,7 +14,7 @@ try:
     from schemas import AnswerRequest, AnswerResponse, WatchlistRequest, WatchlistResponse
     from utils.log_generator import generate_logs
     from llm.summarizer import summarize_with_llm
-    from langgraph_app.nodes.generate_watchlist_summary_pipeline import generate_watchlist_summary_pipeline
+    from langgraph_app.nodes.generate_watchlist_summary_pipeline import generate_watchlist_summary_pipeline, generate_watchlist_summary_sse_pipeline
 except ImportError as e:
     print(f"Import error: {e}")
     # 如果相對導入失敗，嘗試絕對導入
@@ -20,7 +22,7 @@ except ImportError as e:
     from schemas import AnswerRequest, AnswerResponse, WatchlistRequest, WatchlistResponse
     from utils.log_generator import generate_logs
     from llm.summarizer import summarize_with_llm
-    from langgraph_app.nodes.generate_watchlist_summary_pipeline import generate_watchlist_summary_pipeline
+    from langgraph_app.nodes.generate_watchlist_summary_pipeline import generate_watchlist_summary_pipeline, generate_watchlist_summary_sse_pipeline
 
 import httpx
 
@@ -88,6 +90,19 @@ async def watchlist_summary(req: WatchlistRequest):
             logs=[],
             error=f"處理時發生錯誤: {e}"
         )
+
+@router.post("/watchlist-summary-sse")
+async def watchlist_summary_sse(req: WatchlistRequest):
+    def event_stream():
+        try:
+            for log, sections in generate_watchlist_summary_sse_pipeline(req.stock_list):
+                if log:
+                    yield f"data: {{\"log\": {json.dumps(log, ensure_ascii=False)} }}\n\n"
+                if sections is not None:
+                    yield f"data: {{\"sections\": {json.dumps(sections, ensure_ascii=False)} }}\n\n"
+        except Exception as e:
+            yield f"data: {{\"log\": \"❌ SSE 發生錯誤: {str(e)}\"}}\n\n"
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 @router.post("/login")
 async def login(

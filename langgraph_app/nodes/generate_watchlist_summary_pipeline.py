@@ -152,6 +152,108 @@ def generate_watchlist_summary_pipeline(stock_list: List[int]) -> Dict[str, Any]
             "logs": []
         }
 
+def generate_watchlist_summary_sse_pipeline(stock_list: List[int]):
+    """
+    SSE 版本：每個步驟即時 yield log，最後 yield 完成訊息和所有 sections
+    """
+    try:
+        all_sections = []
+        # 1. 產業分布統計
+        log = "步驟 1: 產生產業分布統計"
+        yield log, None
+        industry_result = generate_industry_distribution_section(stock_list)
+        if industry_result.get("success"):
+            all_sections.append(industry_result["section"])
+        else:
+            yield f"產業分布統計失敗: {industry_result.get('error')}", None
+        # 1.5 自選股 vs 同產業指數表現
+        log = "步驟 1.5: 產生自選股 vs 同產業指數表現"
+        yield log, None
+        try:
+            industry_comparison_result = generate_industry_comparison_section(stock_list)
+            if industry_comparison_result.get("success"):
+                all_sections.append(industry_comparison_result["section"])
+            else:
+                yield f"自選股 vs 同產業指數表現失敗: {industry_comparison_result.get('error')}", None
+        except Exception as e:
+            yield f"產生自選股 vs 同產業指數表現時發生錯誤: {e}", None
+        # 2. 股價摘要
+        log = "步驟 2: 產生股價摘要"
+        yield log, None
+        price_result = generate_price_summary_section(stock_list)
+        price_data = None
+        if price_result.get("success"):
+            all_sections.append(price_result["section"])
+            price_data = price_result.get("price_data")
+        else:
+            yield f"股價摘要失敗: {price_result.get('error')}", None
+        # 3. 報酬率統計分析
+        log = "步驟 3: 產生報酬率統計分析"
+        yield log, None
+        if price_data:
+            return_result = generate_return_analysis_section(price_data)
+            if return_result.get("success"):
+                all_sections.append(return_result["section"])
+            else:
+                yield f"報酬率統計分析失敗: {return_result.get('error')}", None
+        else:
+            yield "沒有股價資料，跳過報酬率統計分析", None
+        # 4. 異動焦點個股
+        log = "步驟 4: 產生異動焦點個股"
+        yield log, None
+        focus_result = generate_focus_stocks_section(stock_list, price_data)
+        if focus_result.get("success"):
+            all_sections.append(focus_result["section"])
+        else:
+            yield f"異動焦點個股失敗: {focus_result.get('error')}", None
+        # 5. 資料來源
+        log = "步驟 5: 添加資料來源"
+        yield log, None
+        sources_section = {
+            "title": "資料來源",
+            "content": "本報告資料來源包括：\n• Finlab 台股資料庫\n• Serper API 搜尋結果",
+            "cards": [
+                {
+                    "title": "資料來源說明",
+                    "content": "本報告資料來源包括：\n• Finlab 台股資料庫：公司基本資訊、收盤價資料\n• Serper API：股票相關最新消息",
+                    "type": "text"
+                }
+            ],
+            "sources": [
+                {
+                    "name": "Finlab 台股資料庫",
+                    "url": "https://finlab.tw/",
+                    "description": "台股公司基本資訊與歷史價格資料"
+                },
+                {
+                    "name": "Serper API",
+                    "url": "https://serper.dev/",
+                    "description": "股票相關最新消息搜尋"
+                }
+            ]
+        }
+        all_sections.append(sources_section)
+        # 6. 免責聲明
+        log = "步驟 6: 添加免責聲明"
+        yield log, None
+        disclaimer_section = {
+            "title": "免責聲明",
+            "content": "本報告僅供參考，不構成投資建議。投資人應自行承擔投資風險。",
+            "cards": [
+                {
+                    "title": "免責聲明",
+                    "content": "本報告僅供參考，不構成投資建議。投資人應自行承擔投資風險。",
+                    "type": "text"
+                }
+            ],
+            "sources": []
+        }
+        all_sections.append(disclaimer_section)
+        # 完成
+        yield "✅ 自選股摘要分析完成", all_sections
+    except Exception as e:
+        yield f"❌ 產生自選股摘要時發生錯誤: {e}", None
+
 # 測試用
 if __name__ == "__main__":
     test_stock_list = [2303, 2330, 2610, 2376, 2317]
