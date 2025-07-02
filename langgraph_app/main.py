@@ -20,6 +20,7 @@ import requests
 import yfinance as yf
 import pandas as pd
 from routes.answer import router as answer_router
+import httpx
 
 # 載入環境變數
 load_dotenv()
@@ -1065,10 +1066,33 @@ def format_sources_data(sources: List[Dict]) -> str:
 
 @app.post("/api/proxy_login")
 async def proxy_login(request: Request):
-    form = await request.form()
-    url = "https://www.cmoney.tw/identity/token"
-    resp = requests.post(url, data=form)
-    return Response(content=resp.content, status_code=resp.status_code, media_type=resp.headers.get("Content-Type"))
+    try:
+        # 讀取 form data
+        form = await request.form()
+        
+        # 轉發到 CMoney API
+        url = "https://www.cmoney.tw/identity/token"
+        
+        # 使用 httpx 進行異步請求
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, data=dict(form))
+            
+        # 返回響應
+        return Response(
+            content=resp.content, 
+            status_code=resp.status_code, 
+            media_type=resp.headers.get("Content-Type", "application/json")
+        )
+    except Exception as e:
+        print(f"[ERROR] proxy_login 錯誤: {e}")
+        return Response(
+            content=json.dumps({
+                "error": "internal_server_error",
+                "error_description": f"登入處理時發生錯誤: {str(e)}"
+            }), 
+            status_code=500, 
+            media_type="application/json"
+        )
 
 @app.post("/api/proxy_custom_group")
 async def proxy_custom_group(request: Request):
