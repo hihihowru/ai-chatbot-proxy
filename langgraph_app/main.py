@@ -203,68 +203,119 @@ def ask_sse_api(question: str = Query(...)):
                 yield f"data: {json.dumps({'log': log_msg})}\n\n"
                 
                 try:
-                    search_result = search_news_smart(
+                    # 第一次搜尋
+                    search_result_1 = search_news_smart(
                         company_name=company_name,
                         stock_id=stock_id,
                         intent=integrated_result.get("category", ""),
                         keywords=search_keywords,
                         serper_api_key=serper_api_key,
-                        use_grouped=True  # 使用分組搜尋
+                        use_grouped=True
                     )
-                    
-                    if search_result.get("success"):
-                        news_count = len(search_result.get("results", []))
-                        yield f"data: {json.dumps({'log': f'📰 第一次搜尋找到 {news_count} 則相關新聞'})}\n\n"
-                        
-                        # 顯示每則新聞標題
-                        for i, news in enumerate(search_result.get("results", [])[:5]):  # 只顯示前5則
+                    if search_result_1.get("success"):
+                        news_count_1 = len(search_result_1.get("results", []))
+                        yield f"data: {json.dumps({'log': f'📰 第一次搜尋找到 {news_count_1} 則相關新聞'})}\n\n"
+                        for i, news in enumerate(search_result_1.get("results", [])[:5]):
                             title = news.get("title", "")
-                            yield f"data: {json.dumps({'log': f'📄 {i+1}. {title}'})}\n\n"
+                            yield f"data: {json.dumps({'log': f'📄 1-{i+1}. {title}'})}\n\n"
                             time.sleep(0.3)
-                        
-                        # 第二次搜尋：根據第一次搜尋結果生成新的關鍵字
-                        yield f"data: {json.dumps({'log': '🔄 開始第二次搜尋，根據第一次結果生成新關鍵字...'})}\n\n"
-                        
-                        # 從第一次搜尋結果中提取新的關鍵字
-                        first_search_results = search_result.get("results", [])
-                        new_keywords = extract_keywords_from_results(first_search_results, company_name, stock_id)
-                        
-                        new_keywords_str = ", ".join(new_keywords)
-                        yield f"data: {json.dumps({'log': f'🔍 第二次搜尋關鍵字: {new_keywords_str}'})}\n\n"
-                        
-                        # 執行第二次搜尋
-                        second_search_result = search_news_smart(
-                            company_name=company_name,
-                            stock_id=stock_id,
-                            intent=integrated_result.get("category", ""),
-                            keywords=new_keywords,
-                            serper_api_key=serper_api_key,
-                            use_grouped=True  # 使用分組搜尋
-                        )
-                        
-                        if second_search_result.get("success"):
-                            second_news_count = len(second_search_result.get("results", []))
-                            yield f"data: {json.dumps({'log': f'📰 第二次搜尋找到 {second_news_count} 則相關新聞'})}\n\n"
-                            
-                            # 合併兩次搜尋結果
-                            all_results = merge_search_results(first_search_results, second_search_result.get("results", []))
-                            yield f"data: {json.dumps({'log': f'📋 合併後總共 {len(all_results)} 則新聞'})}\n\n"
-                            
-                            # 更新 search_result 為合併後的結果
-                            search_result["results"] = all_results
-                            
-                            # 檢查是否為個股分析類別，如果是則爬取財務數據
-                            if "個股分析" in category:
-                                # 獲取 Yahoo 財經財務報表數據
-                                yield f"data: {json.dumps({'log': '📊 正在獲取 Yahoo 財經財務報表數據...'})}\n\n"
-                                financial_data = fetch_yahoo_financial_data(stock_id, company_name)
-                                
-                                if financial_data.get("success"):
-                                    data = financial_data.get("data", {})
-                                    yield f"data: {json.dumps({'log': '📊 成功獲取財務報表數據'})}\n\n"
-                                    
-                                    # 準備財務數據上下文
-                                    financial_context = f"""
+                    else:
+                        yield f"data: {json.dumps({'log': '❌ 第一次新聞搜尋失敗: ' + search_result_1.get('error', '未知錯誤')})}\n\n"
+                        search_result_1["results"] = []
+
+                    # 第二次搜尋
+                    yield f"data: {json.dumps({'log': '🔄 開始第二次搜尋，根據第一次結果生成新關鍵字...'})}\n\n"
+                    new_keywords_2 = extract_keywords_from_results(search_result_1.get("results", []), company_name, stock_id)
+                    new_keywords_2_str = ', '.join(new_keywords_2)
+                    yield f"data: {json.dumps({'log': f'🔍 第二次搜尋關鍵字: {new_keywords_2_str}'})}\n\n"
+                    search_result_2 = search_news_smart(
+                        company_name=company_name,
+                        stock_id=stock_id,
+                        intent=integrated_result.get("category", ""),
+                        keywords=new_keywords_2,
+                        serper_api_key=serper_api_key,
+                        use_grouped=True
+                    )
+                    if search_result_2.get("success"):
+                        news_count_2 = len(search_result_2.get("results", []))
+                        yield f"data: {json.dumps({'log': f'📰 第二次搜尋找到 {news_count_2} 則相關新聞'})}\n\n"
+                        for i, news in enumerate(search_result_2.get("results", [])[:5]):
+                            title = news.get("title", "")
+                            yield f"data: {json.dumps({'log': f'📄 2-{i+1}. {title}'})}\n\n"
+                            time.sleep(0.3)
+                    else:
+                        yield f"data: {json.dumps({'log': '❌ 第二次新聞搜尋失敗: ' + search_result_2.get('error', '未知錯誤')})}\n\n"
+                        search_result_2["results"] = []
+
+                    # 第三次搜尋
+                    yield f"data: {json.dumps({'log': '🔄 開始第三次搜尋，根據前兩次結果生成新關鍵字...'})}\n\n"
+                    merged_1_2 = merge_search_results(search_result_1.get("results", []), search_result_2.get("results", []))
+                    new_keywords_3 = extract_keywords_from_results(merged_1_2, company_name, stock_id)
+                    new_keywords_3_str = ', '.join(new_keywords_3)
+                    yield f"data: {json.dumps({'log': f'🔍 第三次搜尋關鍵字: {new_keywords_3_str}'})}\n\n"
+                    search_result_3 = search_news_smart(
+                        company_name=company_name,
+                        stock_id=stock_id,
+                        intent=integrated_result.get("category", ""),
+                        keywords=new_keywords_3,
+                        serper_api_key=serper_api_key,
+                        use_grouped=True
+                    )
+                    if search_result_3.get("success"):
+                        news_count_3 = len(search_result_3.get("results", []))
+                        yield f"data: {json.dumps({'log': f'📰 第三次搜尋找到 {news_count_3} 則相關新聞'})}\n\n"
+                        for i, news in enumerate(search_result_3.get("results", [])[:5]):
+                            title = news.get("title", "")
+                            yield f"data: {json.dumps({'log': f'📄 3-{i+1}. {title}'})}\n\n"
+                            time.sleep(0.3)
+                    else:
+                        yield f"data: {json.dumps({'log': '❌ 第三次新聞搜尋失敗: ' + search_result_3.get('error', '未知錯誤')})}\n\n"
+                        search_result_3["results"] = []
+
+                    # 第四次搜尋
+                    yield f"data: {json.dumps({'log': '🔄 開始第四次搜尋，使用備用關鍵字...'})}\n\n"
+                    new_keywords_4 = generate_fallback_second_keywords(company_name, stock_id)
+                    new_keywords_4_str = ', '.join(new_keywords_4)
+                    yield f"data: {json.dumps({'log': f'🔍 第四次搜尋關鍵字: {new_keywords_4_str}'})}\n\n"
+                    search_result_4 = search_news_smart(
+                        company_name=company_name,
+                        stock_id=stock_id,
+                        intent=integrated_result.get("category", ""),
+                        keywords=new_keywords_4,
+                        serper_api_key=serper_api_key,
+                        use_grouped=True
+                    )
+                    if search_result_4.get("success"):
+                        news_count_4 = len(search_result_4.get("results", []))
+                        yield f"data: {json.dumps({'log': f'📰 第四次搜尋找到 {news_count_4} 則相關新聞'})}\n\n"
+                        for i, news in enumerate(search_result_4.get("results", [])[:5]):
+                            title = news.get("title", "")
+                            yield f"data: {json.dumps({'log': f'📄 4-{i+1}. {title}'})}\n\n"
+                            time.sleep(0.3)
+                    else:
+                        yield f"data: {json.dumps({'log': '❌ 第四次新聞搜尋失敗: ' + search_result_4.get('error', '未知錯誤')})}\n\n"
+                        search_result_4["results"] = []
+
+                    # 合併所有搜尋結果
+                    all_results = merge_search_results(
+                        merge_search_results(
+                            merge_search_results(search_result_1.get("results", []), search_result_2.get("results", [])),
+                            search_result_3.get("results", [])
+                        ),
+                        search_result_4.get("results", [])
+                    )
+                    yield f"data: {json.dumps({'log': f'📋 合併後總共 {len(all_results)} 則新聞'})}\n\n"
+                    # 更新 search_result 為合併後的結果
+                    search_result = {"success": True, "results": all_results}
+
+                    # 檢查是否為個股分析類別，如果是則爬取財務數據
+                    if "個股分析" in category:
+                        yield f"data: {json.dumps({'log': '📊 正在獲取 Yahoo 財經財務報表數據...'})}\n\n"
+                        financial_data = fetch_yahoo_financial_data(stock_id, company_name)
+                        if financial_data.get("success"):
+                            data = financial_data.get("data", {})
+                            yield f"data: {json.dumps({'log': '📊 成功獲取財務報表數據'})}\n\n"
+                            financial_context = f"""
 Yahoo 財經財務報表數據：
 
 每股盈餘 (EPS)：
@@ -282,37 +333,24 @@ Yahoo 財經財務報表數據：
 資料來源：
 {format_sources_data(data.get('sources', []))}
 """
-                                    
-                                    # 準備新聞來源
-                                    news_sources = []
-                                    for news in search_result.get("results", []):
-                                        news_sources.append({
-                                            "title": news.get("title", "無標題"),
-                                            "link": news.get("link", "")
-                                        })
-                                    
-                                    # 準備財務資料來源
-                                    financial_sources = data.get('sources', [])
-                                    
-                                    # 構建新聞摘要
-                                    news_summary = ""
-                                    if search_result.get("results"):
-                                        news_summary = "\n".join([
-                                            f"{i+1}. {news.get('title', '無標題')}: {news.get('snippet', '無摘要')}"
-                                            for i, news in enumerate(search_result.get("results", [])[:5])
-                                        ])
-                                    
-                                    # 儲存財務數據供後續使用
-                                    financial_data = data
-                                else:
-                                    yield f"data: {json.dumps({'log': '⚠️ 無法獲取 Yahoo 財經財務報表數據'})}\n\n"
-                            else:
-                                # 非個股分析類別，跳過財務數據獲取
-                                yield f"data: {json.dumps({'log': '📝 非個股分析類別，跳過財務數據獲取'})}\n\n"
+                            news_sources = []
+                            for news in search_result.get("results", []):
+                                news_sources.append({
+                                    "title": news.get("title", "無標題"),
+                                    "link": news.get("link", "")
+                                })
+                            financial_sources = data.get('sources', [])
+                            news_summary = ""
+                            if search_result.get("results"):
+                                news_summary = "\n".join([
+                                    f"{i+1}. {news.get('title', '無標題')}: {news.get('snippet', '無摘要')}"
+                                    for i, news in enumerate(search_result.get("results", [])[:5])
+                                ])
+                            financial_data = data
                         else:
-                            yield f"data: {json.dumps({'log': '❌ 第二次新聞搜尋失敗: ' + second_search_result.get('error', '未知錯誤')})}\n\n"
+                            yield f"data: {json.dumps({'log': '⚠️ 無法獲取 Yahoo 財經財務報表數據'})}\n\n"
                     else:
-                        yield f"data: {json.dumps({'log': '❌ 新聞搜尋失敗: ' + search_result.get('error', '未知錯誤')})}\n\n"
+                        yield f"data: {json.dumps({'log': '📝 非個股分析類別，跳過財務數據獲取'})}\n\n"
                 except Exception as e:
                     yield f"data: {json.dumps({'log': f'❌ 新聞搜尋錯誤: {str(e)}'})}\n\n"
             

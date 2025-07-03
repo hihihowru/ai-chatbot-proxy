@@ -47,11 +47,13 @@ def generate_industry_comparison_section(stock_list: List[int]) -> Dict[str, Any
                     ret = (series.iloc[-1] / series.iloc[-(n+1)] - 1) * 100
                     returns[f'{p}'] = round(ret, 2)
             return returns
+        print(f"[DEBUG] index_price.columns: {list(index_price.columns)}")
         result = []
         for stock_id in stock_list:
             stock_id_str = str(stock_id)
             industry = get_industry(stock_id_str)
             index_col = get_index_col(industry)
+            print(f"[DEBUG] {stock_id_str}: 產業={industry}, 指數欄位={index_col}")
             stock_name = company_info.loc[stock_id_str, '公司名稱'] if stock_id_str in company_info.index else stock_id_str
             stock_close = close[stock_id_str].dropna() if stock_id_str in close.columns else pd.Series(dtype=float)
             stock_ret = calc_return(stock_close)

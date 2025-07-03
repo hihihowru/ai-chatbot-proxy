@@ -14,6 +14,7 @@ from langgraph_app.nodes.generate_section_social_sentiment import generate_socia
 from langgraph_app.nodes.generate_section_notice import generate_notice_section
 from langgraph_app.nodes.generate_section_sources import generate_sources_section
 from langgraph_app.nodes.generate_section_disclaimer import generate_disclaimer_section
+from langgraph_app.nodes.generate_section_institutional_trend import generate_institutional_trend_section
 
 def generate_report_pipeline(
     company_name: str,
@@ -88,6 +89,18 @@ def generate_report_pipeline(
             price_result["section"]["sources"] = news_sources
             all_sections.append(price_result["section"])  # 使用預設內容
             logs.append("❌ 股價異動總結產生失敗，使用預設內容")
+        
+        # 1.5 產生法人動向分析
+        print(f"\n[DEBUG] ===== 步驟 1.5: 產生法人動向分析 =====")
+        logs.append("步驟 1.5: 產生法人動向分析")
+        try:
+            institutional_result = generate_institutional_trend_section(stock_id)
+            all_sections.append(institutional_result)
+            logs.append("✅ 法人動向分析產生成功")
+            print(f"[DEBUG] ✅ 法人動向分析產生成功")
+        except Exception as e:
+            logs.append(f"❌ 法人動向分析產生失敗: {e}")
+            print(f"[DEBUG] ❌ 法人動向分析產生失敗: {e}")
         
         # 2. 產生財務狀況分析
         print(f"\n[DEBUG] ===== 步驟 2: 產生財務狀況分析 =====")
