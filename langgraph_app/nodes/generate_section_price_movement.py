@@ -90,6 +90,10 @@ def generate_price_movement_section(company_name: str, stock_id: str, news_summa
                             content = content.replace(f"[{source_key}]", f"[{source_info.get('title', source_key)}]")
                     card["content"] = content
             
+            # 按照出現順序組成 sources 陣列
+            sources = [news_sources[i] for i in sorted(used_indices)] if news_sources else []
+            result["sources"] = sources
+            
             print(f"[DEBUG] ✅ 股價異動總結產生成功")
             return {
                 "success": True,
@@ -115,7 +119,8 @@ def generate_price_movement_section(company_name: str, stock_id: str, news_summa
                         "title": "技術面觀察",
                         "content": f"技術指標分析：建議關注支撐壓力位。"
                     }
-                ]
+                ],
+                "sources": []  # 確保預設也是陣列
             }
             return {
                 "success": False,
@@ -141,7 +146,8 @@ def generate_price_movement_section(company_name: str, stock_id: str, news_summa
                     "title": "技術面觀察",
                     "content": f"技術指標分析：建議關注支撐壓力位。"
                 }
-            ]
+            ],
+            "sources": []  # 確保預設也是陣列
         }
         return {
             "success": False,
