@@ -13,6 +13,7 @@
   * [旅程五：決策思考與投資建議](user_journey_map/yong-hulcheng-wu.md)
   * [旅程六：延伸行動與收藏追蹤](user_journey_map/yong-hulcheng-liu.md)
   * [旅程七：滿足回饋與二次互動](user_journey_map/yong-hulcheng-qi.md)
+  * [Wireframe 設計文件](user_journey_map/wireframe_design.md)
 * [台股投資分析助理系統 (ai-chatbot-proxy)](docs/README.md)
   * [Table of contents](docs/SUMMARY.md)
   * [前端架構概覽](docs/frontend_overview.md)
