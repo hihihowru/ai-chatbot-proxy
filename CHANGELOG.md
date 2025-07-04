@@ -46,22 +46,48 @@
   - 新增多個測試腳本
   - 包含輿情分析、搜尋功能等測試
 
+- **前端功能增強**
+  - 新增社群討論統計區塊渲染
+  - 實現水平統計卡片顯示
+  - 支援市場標籤顯示（如"市場過熱警示"）
+
+- **API 功能擴展**
+  - 新增 mock 社群討論統計 API
+  - 實現 insights observation 渲染
+  - 優化 WatchlistSummaryCard 組件
+
 ### 🔧 技術改進
 - **部署配置優化**
   - 修正 Railway 部署的 PORT 環境變數問題
   - 添加 nixpacks.toml 配置
   - 更新 railway.toml 配置
   - 修正 Dockerfile 和 Procfile 配置
+  - 使用 start_simple.py 進行動態 PORT 處理
+  - 解決 Railway nixpacks pip 配置問題
 
 - **Vercel 本地開發支持**
   - 添加 vercel.json 配置文件
   - 支持本地開發模式
   - 配置 FastAPI 路由
 
+- **API 架構優化**
+  - 更新 LangGraph 版本和 API 使用方式
+  - 修復 proxy_login API，使用 httpx 進行異步請求
+  - 改善錯誤處理機制
+  - 添加 finlab 到 requirements.txt
+
+- **前端技術升級**
+  - 修復 ReactMarkdown v8+ 兼容性問題
+  - 移除 className 屬性，使用 div 包裝進行樣式設定
+  - 優化組件渲染性能
+
 ### 🐛 錯誤修復
 - 修正 uvicorn 啟動時的 PORT 環境變數錯誤
 - 修復 nixpacks builder 的 pip 命令找不到問題
 - 修正 app 路徑配置問題
+- 修復 Railway 部署錯誤和 nixpacks 配置問題
+- 修正 Mermaid journey 圖語法錯誤
+- 修復 ReactMarkdown 組件兼容性問題
 
 ### 📚 文檔更新
 - 新增 CHANGELOG.md 版本控制文檔
