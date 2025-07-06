@@ -51,3 +51,15 @@
   * [search_news - 新聞搜尋](docs/nodes/search_news.md)
   * [summarize - 摘要生成](docs/nodes/summarize.md)
   * [summarize_results - 結果摘要](docs/nodes/summarize_results.md)
+
+## 📝 產品規劃
+
+* [產品規劃總覽](../產品規劃總覽.md)
+* [首頁](docs/pages/pages/home.md)
+* [對話頁面](docs/pages/pages/chat.md)
+* [個股K線頁面](docs/pages/pages/stock.md)
+* [登入頁面](docs/pages/pages/login.md)
+* [選擇自選股](docs/pages/pages/select-watchlist.md)
+* [收藏頁面](docs/pages/pages/saved.md)
+* [設定頁面](docs/pages/pages/settings.md)
+* [通用元件](docs/pages/pages/components.md)
