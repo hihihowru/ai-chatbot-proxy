@@ -20,8 +20,8 @@ def generate_industry_distribution_section(stock_list: List[int]) -> Dict[str, A
         # 確保 finlab 已登入
         try:
             import finlab
-            api_token = 'AOl10aUjuRAwxdHjbO25jGoH7c8LOhXqKz/HgT9WlcCPkBwL8Qp6PDlqpd59YuR7#vip_m'
-            finlab.login(api_token=api_token)
+            api_key = os.environ['FINLAB_API_KEY']
+            finlab.login(api_token=api_key)
             
             # 測試 finlab 連線
             test_data = data.get('company_basic_info')

@@ -12,9 +12,9 @@
 ## 主要功能
 
 ### 1. 時段自動切換
-- **盤前時段** (09:00-09:30): 顯示前日收盤資訊、今日開盤預測、重要新聞
-- **盤中時段** (09:30-13:30): 顯示即時股價、漲跌幅排行、熱門話題
-- **盤後時段** (13:30-18:00): 顯示收盤資訊、盤後分析、明日展望
+- **盤前時段** (06:00-09:00): 顯示前日收盤資訊、今日開盤預測、重要新聞
+- **盤中時段** (09:00-13:30): 顯示即時股價、漲跌幅排行、熱門話題
+- **盤後時段** (13:00-隔日06:00): 顯示收盤資訊、盤後分析、明日展望
 
 ### 2. 自動切換提示
 - 顯示提示條：「現在是盤中，已自動切換」
@@ -85,9 +85,12 @@ const getCurrentPeriod = () => {
   const minute = now.getMinutes();
   const time = hour * 100 + minute;
   
-  if (time >= 900 && time < 930) return 'pre-market';
-  if (time >= 930 && time < 1330) return 'intraday';
-  if (time >= 1330 && time < 1800) return 'post-market';
+  // 盤前時段：06:00-09:00
+  if (time >= 600 && time < 900) return 'pre-market';
+  // 盤中時段：09:00-13:30
+  if (time >= 900 && time < 1330) return 'intraday';
+  // 盤後時段：13:00-隔日06:00
+  if (time >= 1300 || time < 600) return 'post-market';
   return 'post-market'; // 預設
 };
 ```

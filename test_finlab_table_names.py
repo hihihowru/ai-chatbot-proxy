@@ -15,8 +15,8 @@ def search_gross_profit_tables():
         import pandas as pd
         
         # 登入 FinLab API
-        api_token = 'AOl10aUjuRAwxdHjbO25jGoH7c8LOhXqKz/HgT9WlcCPkBwL8Qp6PDlqpd59YuR7#vip_m'
-        finlab.login(api_token=api_token)
+        api_key = os.environ['FINLAB_API_KEY']
+        finlab.login(api_token=api_key)
         
         print("=== 搜尋毛利相關表格 ===")
         

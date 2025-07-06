@@ -11,8 +11,8 @@ def check_available_data_types():
     """檢查可用的資料類型"""
     
     # 登入 FinLab API
-    api_token = 'AOl10aUjuRAwxdHjbO25jGoH7c8LOhXqKz/HgT9WlcCPkBwL8Qp6PDlqpd59YuR7#vip_m'
-    finlab.login(api_token=api_token)
+    api_key = os.environ['FINLAB_API_KEY']
+    finlab.login(api_token=api_key)
     
     print("=== 檢查 FinLab 可用資料類型 ===")
     
