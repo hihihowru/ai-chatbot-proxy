@@ -2,6 +2,7 @@
 
 * [台股投資分析助理系統 - 部署指南](README.md)
 * [📋 更新日誌 (CHANGELOG)](CHANGELOG.md)
+* [🗺️ 網站地圖 (Sitemap)](docs/sitemap.md)
 * [投資分析系統 - Serper API 整合](README_INVESTMENT_ANALYSIS.md)
 * [搜尋功能更新說明](README_SEARCH_UPDATE.md)
 * [自選股摘要功能](README_WATCHLIST.md)

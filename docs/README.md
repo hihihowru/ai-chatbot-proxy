@@ -4,6 +4,7 @@
 
 ## 目錄結構
 
+- `sitemap.md`：網站地圖與頁面架構
 - `architecture.md`：系統架構圖與說明
 - `nodes/`：各節點 (node) 功能與用途說明
 - `prompting.md`：Prompt 設計與範例
