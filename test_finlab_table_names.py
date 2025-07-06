@@ -5,7 +5,11 @@
 
 import sys
 import os
+from dotenv import load_dotenv
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# 載入 .env 檔案
+load_dotenv()
 
 def search_gross_profit_tables():
     """搜尋毛利相關的表格"""

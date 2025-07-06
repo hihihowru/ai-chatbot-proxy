@@ -7,6 +7,10 @@ import finlab
 from finlab import data
 import pandas as pd
 import os
+from dotenv import load_dotenv
+
+# 載入 .env 檔案
+load_dotenv()
 
 def test_simple_finlab():
     """簡化測試 - 只取關鍵資料"""
