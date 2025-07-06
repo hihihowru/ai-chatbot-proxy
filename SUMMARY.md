@@ -55,7 +55,8 @@
 
 ## 📝 產品規劃
 
-* [產品規劃總覽](../產品規劃總覽.md)
+* [產品規劃總覽](產品規劃總覽.md)
+* [產品規劃總覽](docs/pages/pages/README.md)
 * [首頁](docs/pages/pages/home.md)
 * [對話頁面](docs/pages/pages/chat.md)
 * [個股K線頁面](docs/pages/pages/stock.md)
