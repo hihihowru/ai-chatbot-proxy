@@ -93,6 +93,18 @@
 - 新增 CHANGELOG.md 版本控制文檔
 - 更新部署相關文檔
 - 完善 API 文檔
+- **產品規劃文檔**
+  - 新增各頁面設計文檔（chat、components、home、login、saved、select-watchlist、settings、stock）
+  - 完善產品規劃架構文檔
+  - 更新 SUMMARY.md 加入產品規劃章節
+- **用戶旅程文檔**
+  - 重新設計用戶旅程，採用 MECE 框架
+  - 建立完整的 wireframe 設計文檔
+  - 優化文檔結構和格式
+- **GitBook 文檔管理**
+  - 清理重複的 SUMMARY.md 文件
+  - 移除 node_modules 內容
+  - 優化目錄結構和導航
 
 ---
 
