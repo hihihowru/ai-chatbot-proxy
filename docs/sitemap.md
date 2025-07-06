@@ -30,11 +30,28 @@ graph TD
     V[幫助支援] --> W[幫助中心 /help]
     V --> X[聯絡客服 /contact]
     
+    %% 搜尋功能流程
+    SEARCH[搜尋框] --> SEARCH_SUGGEST[搜尋建議]
+    SEARCH_SUGGEST --> STOCK_SUGGEST[股票建議]
+    SEARCH_SUGGEST --> QUESTION_SUGGEST[問題建議]
+    SEARCH_SUGGEST --> HISTORY_SUGGEST[歷史對話建議]
+    
+    STOCK_SUGGEST --> D
+    QUESTION_SUGGEST --> NEW_CHAT[新增聊天 /chat?new=true]
+    HISTORY_SUGGEST --> Q
+    
+    NEW_CHAT --> B
+    
     style A fill:#e1f5fe
     style B fill:#f3e5f5
     style L fill:#e8f5e8
     style P fill:#fff3e0
     style V fill:#fce4ec
+    style SEARCH fill:#fff9c4
+    style SEARCH_SUGGEST fill:#fff9c4
+    style STOCK_SUGGEST fill:#c8e6c9
+    style QUESTION_SUGGEST fill:#ffcdd2
+    style HISTORY_SUGGEST fill:#d1c4e9
 ```
 
 ### Mindmap 格式
@@ -69,6 +86,16 @@ mindmap
         籌碼面
         基本面
         技術面
+    搜尋功能
+      智能建議
+        股票建議
+        問題建議
+        歷史對話建議
+      搜尋結果
+        股票結果
+        新聞結果
+        對話結果
+        分析結果
     用戶功能
       登入頁面
       個人資料
@@ -200,6 +227,23 @@ mindmap
 │       ├── 即時通知
 │       ├── 歷史通知
 │       └── 設定管理
+├── 搜尋功能 (/search) - v0 MVP
+│   ├── 股票代碼搜尋
+│   ├── 公司名稱搜尋
+│   ├── 新聞內容搜尋
+│   ├── 歷史對話搜尋
+│   ├── 智能關鍵字生成
+│   ├── 搜尋結果過濾
+│   ├── 智能建議系統
+│   │   ├── 股票建議 (點擊跳轉到個股頁面)
+│   │   ├── 問題建議 (點擊自動新增聊天)
+│   │   ├── 歷史對話建議 (點擊跳轉到歷史對話)
+│   │   └── 即時搜尋建議 (輸入時動態顯示)
+│   └── 搜尋結果分類
+│       ├── 股票結果 (優先顯示)
+│       ├── 新聞結果
+│       ├── 對話結果
+│       └── 分析結果
 └── 幫助支援
     ├── 幫助中心 (/help) - v1 MVP
     │   ├── 常見問題
@@ -419,6 +463,16 @@ mindmap
   - 歷史對話搜尋
   - 智能關鍵字生成
   - 搜尋結果過濾
+  - **智能建議系統**:
+    - 股票建議 (點擊跳轉到個股頁面 `/stock/[id]`)
+    - 問題建議 (點擊自動新增聊天 `/chat?new=true`)
+    - 歷史對話建議 (點擊跳轉到歷史對話)
+    - 即時搜尋建議 (輸入時動態顯示)
+  - **搜尋結果分類**:
+    - 股票結果 (優先顯示)
+    - 新聞結果
+    - 對話結果
+    - 分析結果
 
 ## 📖 幫助與支援
 
@@ -561,4 +615,5 @@ mindmap
 - **2025-07-06**: 新增三面分析 (籌碼面、基本面、技術面) 與具體圖表規劃
 - **2025-07-06**: 移除收藏內容功能 (與 Pinned Chats 重疊)
 - **2025-07-06**: 新增網站架構圖 (Flowchart、Mindmap、Hierarchy)
-- **2025-07-06**: 新增搜尋功能、數據分析、警報系統等缺失功能 
+- **2025-07-06**: 新增搜尋功能、數據分析、警報系統等缺失功能
+- **2025-07-06**: 新增搜尋智能建議系統 (股票建議、問題建議、歷史對話建議) 
