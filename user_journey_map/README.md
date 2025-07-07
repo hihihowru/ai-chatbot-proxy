@@ -1,4 +1,6 @@
-# user\_journey\_map
+# 用戶旅程圖 (User Journey Map)
+
+*最後更新: 2025-07-07*
 
 ## 用戶旅程 × MVP 覆蓋表
 
