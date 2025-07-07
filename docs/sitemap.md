@@ -7,7 +7,7 @@
 graph TD
     A[首頁 /] --> B[對話頁面 /chat]
     A --> C[自選股管理 /watchlist]
-    A --> D[個股分析 /stock/[id]]
+    A --> D[個股分析 /stock/id]
     
     B --> F[新聞資訊整合]
     B --> G[輿情分析整合]
