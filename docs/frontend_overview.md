@@ -56,7 +56,6 @@ ai_chat_twstock/
 │   └── resolveStockId.ts      # 股票代號解析
 ├── public/                    # 靜態資源
 │   ├── data/                  # 資料檔案
-│   └── icons/                 # 圖示檔案
 └── src/                       # 原始碼
     └── modules/               # 模組
         └── promptBuilder.ts   # 提示詞建構器
