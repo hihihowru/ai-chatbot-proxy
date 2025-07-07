@@ -8,7 +8,6 @@ graph TD
     A[首頁 /] --> B[對話頁面 /chat]
     A --> C[自選股管理 /watchlist]
     A --> D[個股分析 /stock/[id]]
-    %% A --> E[產業分析 /industry/[id]] - Phase 4
     
     B --> F[新聞資訊整合]
     B --> G[輿情分析整合]
@@ -30,7 +29,6 @@ graph TD
     V[幫助支援] --> W[幫助中心 /help]
     V --> X[聯絡客服 /contact]
     
-    %% 搜尋功能流程
     SEARCH[搜尋框] --> SEARCH_SUGGEST[搜尋建議]
     SEARCH_SUGGEST --> STOCK_SUGGEST[股票建議]
     SEARCH_SUGGEST --> QUESTION_SUGGEST[問題建議]
