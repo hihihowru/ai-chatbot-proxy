@@ -1,5 +1,54 @@
 # 股票分析助手 - 網站地圖 (Sitemap)
 
+## MVP 版本 Sitemap
+
+### MVP Hierarchy
+```mermaid
+graph TD
+    A[首頁 /]
+    A --> B[對話頁 /chat]
+    A --> C[自選股管理 /watchlist]
+    A --> D[登入 /login]
+    D --> E[自選股選擇 /select-watchlist]
+    C --> F[快速分析]
+    B --> G[AI 分析結果]
+    style A fill:#e1f5fe
+    style B fill:#fff3e0
+    style C fill:#fff3e0
+    style D fill:#f3e5f5
+```
+
+### MVP Flowchart
+```mermaid
+flowchart TD
+    U[用戶進入] --> V{是否已登入?}
+    V -- 否 --> D[登入 /login]
+    D --> E[自選股選擇 /select-watchlist]
+    E --> A[首頁 /]
+    V -- 是 --> A
+    A --> B[對話頁 /chat]
+    A --> C[自選股管理 /watchlist]
+    B --> G[AI 分析結果]
+    C --> F[快速分析]
+    G --> A
+    F --> A
+    style U fill:#e8f5e8
+    style A fill:#e1f5fe
+    style B fill:#fff3e0
+    style C fill:#fff3e0
+    style D fill:#f3e5f5
+```
+
+### MVP 功能對應表
+| 用戶需求 | MVP 功能 | 實現頁面 |
+|----------|----------|----------|
+| 快速了解持股狀況 | 自選股摘要 | /watchlist |
+| AI 投資分析 | 智能對話 | /chat |
+| 登入/個人化 | 登入/自選股選擇 | /login, /select-watchlist |
+| 時段化體驗 | 自動切換首頁 | / |
+
+---
+
 ## 📋 網站架構圖
 
 ### Flowchart 格式
