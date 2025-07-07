@@ -8,46 +8,46 @@
 
 | 頁面 | 路徑 | 文檔 | 狀態 |
 |------|------|------|------|
-| 首頁 | `/` | [home.md](./home.md) | ✅ 已完成 |
-| 對話頁面 | `/chat` | [chat.md](./chat.md) | ✅ 已完成 |
-| 個股K線頁面 | `/stock/[id]` | [stock.md](./stock.md) | ✅ 已完成 |
-| 登入頁面 | `/login` | [login.md](./login.md) | ✅ 已完成 |
-| 選擇自選股 | `/select-watchlist` | [select-watchlist.md](./select-watchlist.md) | ✅ 已完成 |
+| 首頁 | `/` | [home.md](./home.md) |  已完成 |
+| 對話頁面 | `/chat` | [chat.md](./chat.md) |  已完成 |
+| 個股K線頁面 | `/stock/[id]` | [stock.md](./stock.md) |  已完成 |
+| 登入頁面 | `/login` | [login.md](./login.md) |  已完成 |
+| 選擇自選股 | `/select-watchlist` | [select-watchlist.md](./select-watchlist.md) |  已完成 |
 
 ### 用戶功能頁面
 
 | 頁面 | 路徑 | 文檔 | 狀態 |
 |------|------|------|------|
-| 收藏頁面 | `/saved` | [saved.md](./saved.md) | ✅ 已完成 |
-| 設定頁面 | `/settings` | [settings.md](./settings.md) | ✅ 已完成 |
-| 分享頁面 | `/share` | [share.md](./share.md) | ⏳ 待完成 |
-| 匯出頁面 | `/export` | [export.md](./export.md) | ⏳ 待完成 |
-| 通知中心 | `/notifications` | [notifications.md](./notifications.md) | ⏳ 待完成 |
-| 歷史紀錄 | `/history` | [history.md](./history.md) | ⏳ 待完成 |
+| 收藏頁面 | `/saved` | [saved.md](./saved.md) |  已完成 |
+| 設定頁面 | `/settings` | [settings.md](./settings.md) |  已完成 |
+| 分享頁面 | `/share` | [share.md](./share.md) |  待完成 |
+| 匯出頁面 | `/export` | [export.md](./export.md) |  待完成 |
+| 通知中心 | `/notifications` | [notifications.md](./notifications.md) |  待完成 |
+| 歷史紀錄 | `/history` | [history.md](./history.md) |  待完成 |
 
 ### 內容詳情頁面
 
 | 頁面 | 路徑 | 文檔 | 狀態 |
 |------|------|------|------|
-| 新聞詳情 | `/news/[id]` | [news.md](./news.md) | ⏳ 待完成 |
-| 輿情詳情 | `/sentiment/[id]` | [sentiment.md](./sentiment.md) | ⏳ 待完成 |
-| 產業分析 | `/industry/[id]` | [industry.md](./industry.md) | ⏳ 待完成 |
-| 事件詳情 | `/event/[id]` | [event.md](./event.md) | ⏳ 待完成 |
+| 新聞詳情 | `/news/[id]` | [news.md](./news.md) |  待完成 |
+| 輿情詳情 | `/sentiment/[id]` | [sentiment.md](./sentiment.md) |  待完成 |
+| 產業分析 | `/industry/[id]` | [industry.md](./industry.md) |  待完成 |
+| 事件詳情 | `/event/[id]` | [event.md](./event.md) |  待完成 |
 
 ### 用戶體驗頁面
 
 | 頁面 | 路徑 | 文檔 | 狀態 |
 |------|------|------|------|
-| Onboarding | `/welcome` | [welcome.md](./welcome.md) | ⏳ 待完成 |
-| 幫助頁面 | `/help` | [help.md](./help.md) | ⏳ 待完成 |
-| 404錯誤 | `/404` | [404.md](./404.md) | ⏳ 待完成 |
-| 系統錯誤 | `/error` | [error.md](./error.md) | ⏳ 待完成 |
+| Onboarding | `/welcome` | [welcome.md](./welcome.md) |  待完成 |
+| 幫助頁面 | `/help` | [help.md](./help.md) |  待完成 |
+| 404錯誤 | `/404` | [404.md](./404.md) |  待完成 |
+| 系統錯誤 | `/error` | [error.md](./error.md) |  待完成 |
 
 ### 通用元件
 
 | 元件類型 | 路徑 | 文檔 | 狀態 |
 |----------|------|------|------|
-| 通用元件 | `/components/*` | [components.md](./components.md) | ✅ 已完成 |
+| 通用元件 | `/components/*` | [components.md](./components.md) |  已完成 |
 
 ## 文檔結構
 

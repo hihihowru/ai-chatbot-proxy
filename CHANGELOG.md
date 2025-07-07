@@ -1,8 +1,8 @@
-# 📋 更新日誌 (CHANGELOG)
+#  更新日誌 (CHANGELOG)
 
 ## [未發布] - 2025-01-XX
 
-### 🎨 UI/UX 與產品規劃
+###  UI/UX 與產品規劃
 - **用戶旅程重新設計**
   - 採用 MECE 框架重新定義目標用戶
   - 按時段分段：盤前、盤中、盤後
@@ -22,7 +22,7 @@
   - 語音輸入功能提升使用便利性
   - 上下文感知的建議問題系統
 
-### 🚀 新增功能
+###  新增功能
 - **輿情分析功能升級**
   - 標題改為"爆料同學會輿情分析"
   - 重新設計卡片結構，包含過去48小時統計
@@ -56,7 +56,7 @@
   - 實現 insights observation 渲染
   - 優化 WatchlistSummaryCard 組件
 
-### 🔧 技術改進
+###  技術改進
 - **部署配置優化**
   - 修正 Railway 部署的 PORT 環境變數問題
   - 添加 nixpacks.toml 配置
@@ -81,7 +81,7 @@
   - 移除 className 屬性，使用 div 包裝進行樣式設定
   - 優化組件渲染性能
 
-### 🐛 錯誤修復
+###  錯誤修復
 - 修正 uvicorn 啟動時的 PORT 環境變數錯誤
 - 修復 nixpacks builder 的 pip 命令找不到問題
 - 修正 app 路徑配置問題
@@ -89,7 +89,7 @@
 - 修正 Mermaid journey 圖語法錯誤
 - 修復 ReactMarkdown 組件兼容性問題
 
-### 📚 文檔更新
+###  文檔更新
 - 新增 CHANGELOG.md 版本控制文檔
 - 更新部署相關文檔
 - 完善 API 文檔
@@ -110,7 +110,7 @@
 
 ## [v1.0.0] - 2025-06-25
 
-### 🚀 初始版本
+###  初始版本
 - **台股投資分析助理系統**
   - 基於 LangGraph 的投資分析流程
   - 整合 Serper API 搜尋功能
@@ -131,7 +131,7 @@
 
 ---
 
-## 📝 版本命名規則
+##  版本命名規則
 
 ### 語義化版本 (Semantic Versioning)
 - **主版本號 (Major)**: 不兼容的 API 修改
@@ -146,7 +146,7 @@
 
 ---
 
-## 🔗 相關連結
+##  相關連結
 
 - [GitHub 倉庫](https://github.com/your-username/ai-chatbot-proxy)
 - [部署地址](https://your-app.railway.app)
@@ -155,7 +155,7 @@
 
 ---
 
-## 📞 聯絡資訊
+##  聯絡資訊
 
 如有問題或建議，請透過以下方式聯絡：
 - GitHub Issues: [創建 Issue](https://github.com/your-username/ai-chatbot-proxy/issues)

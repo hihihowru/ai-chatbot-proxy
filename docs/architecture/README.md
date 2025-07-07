@@ -6,13 +6,13 @@ graph TB
     User[👤 用戶] --> Frontend[ 前端 React/Next.js]
     
     %% 前端層
-    Frontend --> |SSE 請求| API[🚀 FastAPI 後端]
+    Frontend --> |SSE 請求| API[ FastAPI 後端]
     Frontend --> |WebSocket| WS[🔌 WebSocket 連接]
     
     %% 後端 API 層
     API --> |/api/ask-sse| SSEHandler[ SSE 事件處理器]
     API --> |/api/ask| SyncHandler[⚡ 同步處理器]
-    API --> |/api/query-database| DBHandler[🗄️ 資料庫查詢]
+    API --> |/api/query-database| DBHandler[🗄 資料庫查詢]
     API --> |/api/query-chart| ChartHandler[ 圖表查詢]
     
     %% 主要資料流處理
@@ -34,15 +34,15 @@ graph TB
         ReportPipeline --> PriceSummary[📉 股價異動總結]
         PriceSummary --> FinancialSection[💰 財務狀況分析]
         FinancialSection --> StrategySection[💡 投資策略建議]
-        StrategySection --> NoticeSection[⚠️ 操作注意事項]
-        NoticeSection --> SourcesSection[📚 資料來源]
-        SourcesSection --> DisclaimerSection[⚖️ 免責聲明]
+        StrategySection --> NoticeSection[⚠ 操作注意事項]
+        NoticeSection --> SourcesSection[ 資料來源]
+        SourcesSection --> DisclaimerSection[⚖ 免責聲明]
     end
     
     %% 投資策略建議 Section (包含 summary_table)
     StrategySection --> LLMStrategy[🤖 LLM 策略生成]
     LLMStrategy --> SummaryTable[ Summary Table 生成]
-    SummaryTable --> StrategyResult[✅ 策略結果]
+    SummaryTable --> StrategyResult[ 策略結果]
     
     %% 外部 API 整合
     NewsSearch --> SerperAPI[🌐 Serper API]
@@ -56,7 +56,7 @@ graph TB
     %% 前端渲染層
     subgraph "前端渲染組件"
         Frontend --> InvestmentCard[📊 InvestmentReportCard]
-        InvestmentCard --> SummaryTableComponent[📋 SummaryTableComponent]
+        InvestmentCard --> SummaryTableComponent[ SummaryTableComponent]
         InvestmentCard --> TabsComponent[📑 TabsComponent]
         InvestmentCard --> FinancialScores[📈 FinancialScoresComponent]
     end
@@ -92,11 +92,11 @@ graph TB
     User[👤 用戶] --> |選擇自選股清單| Frontend[ 前端 Next.js]
     
     %% 前端 API 層
-    Frontend --> |POST /api/watchlist-summary| WatchlistAPI[🚀 Watchlist Summary API]
+    Frontend --> |POST /api/watchlist-summary| WatchlistAPI[ Watchlist Summary API]
     Frontend --> |GET /api/watchlist-summary-sse| SSEAPI[ SSE API]
     
     %% 後端處理層
-    WatchlistAPI --> |轉發請求| BackendAPI[🏗️ FastAPI 後端]
+    WatchlistAPI --> |轉發請求| BackendAPI[🏗 FastAPI 後端]
     SSEAPI --> |轉發 SSE| BackendAPI
     
     %% 自選股摘要 Pipeline
@@ -112,7 +112,7 @@ graph TB
         IndustryComparison --> SocialSentiment[💬 社群情緒分析]
         SocialSentiment --> InvestmentStrategy[💡 投資策略建議]
         InvestmentStrategy --> NewsSummary[📰 新聞摘要]
-        NewsSummary --> FinalSummary[✅ 最終摘要]
+        NewsSummary --> FinalSummary[ 最終摘要]
     end
     
     %% 各節點的詳細處理
@@ -136,13 +136,13 @@ graph TB
     
     subgraph "重點股票分析"
         FocusStocks --> StockScreening[🔍 股票篩選]
-        StockScreening --> FocusCriteria[📋 重點標準]
-        FocusCriteria --> FocusList[📝 重點清單]
+        StockScreening --> FocusCriteria[ 重點標準]
+        FocusCriteria --> FocusList[ 重點清單]
     end
     
     subgraph "產業比較分析"
         IndustryComparison --> IndustryMetrics[📊 產業指標]
-        IndustryMetrics --> ComparisonTable[📋 比較表格]
+        IndustryMetrics --> ComparisonTable[ 比較表格]
         ComparisonTable --> IndustryInsights[💡 產業洞察]
     end
     
@@ -154,14 +154,14 @@ graph TB
     
     subgraph "投資策略建議"
         InvestmentStrategy --> StrategyAnalysis[🧠 策略分析]
-        StrategyAnalysis --> RiskAssessment[⚠️ 風險評估]
+        StrategyAnalysis --> RiskAssessment[⚠ 風險評估]
         RiskAssessment --> StrategyRecommendations[💡 策略建議]
     end
     
     subgraph "新聞摘要"
         NewsSummary --> NewsSearch[🔍 新聞搜尋]
         NewsSearch --> NewsFiltering[📰 新聞過濾]
-        NewsFiltering --> NewsSummarization[📝 新聞摘要]
+        NewsFiltering --> NewsSummarization[ 新聞摘要]
     end
     
     %% 外部 API 整合

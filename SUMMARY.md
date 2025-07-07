@@ -1,8 +1,8 @@
 # Table of contents
 
 * [台股投資分析助理系統 - 部署指南](README.md)
-* [📋 更新日誌 (CHANGELOG)](CHANGELOG.md)
-* [🗺️ 網站地圖 (Sitemap)](docs/sitemap.md)
+* [ 更新日誌 (CHANGELOG)](CHANGELOG.md)
+* [🗺 網站地圖 (Sitemap)](docs/sitemap.md)
 * [投資分析系統 - Serper API 整合](README_INVESTMENT_ANALYSIS.md)
 * [搜尋功能更新說明](README_SEARCH_UPDATE.md)
 * [自選股摘要功能](README_WATCHLIST.md)
@@ -19,7 +19,7 @@
   * [旅程七：滿足回饋與二次互動](user_journey_map/yong-hulcheng-qi.md)
   * [Wireframe 設計文件](user_journey_map/wireframe_design.md)
 
-## 🏗️ 系統架構文檔
+## 系統架構 系統架構文檔
 
 * [台股投資分析助理系統](docs/README.md)
   * [前端架構概覽](docs/frontend_overview.md)
@@ -28,13 +28,13 @@
   * [Prompting 設計與範例](docs/prompting.md)
   * [回覆模組系統](docs/response_modules.md)
 
-### 🏛️ 系統架構圖
+### 🏛 系統架構圖
 
 * [系統架構總覽](docs/architecture/README.md)
   * [個股分析流程架構圖](docs/architecture/ge-gu-fen-xi-liu-cheng-jia-gou-tu.md)
   * [自選股分析流程架構圖](docs/architecture/zi-xuan-gu-fen-xi-liu-cheng-jia-gou-tu.md)
 
-### 🔧 節點模組文檔
+###  節點模組文檔
 
 * [節點模組總覽](docs/nodes/README.md)
   * [classify_and_extract - 分類與提取](docs/nodes/classify_and_extract.md)
@@ -53,7 +53,7 @@
   * [summarize - 摘要生成](docs/nodes/summarize.md)
   * [summarize_results - 結果摘要](docs/nodes/summarize_results.md)
 
-## 📝 產品規劃
+##  產品規劃
 
 * [產品規劃總覽](產品規劃總覽.md)
 * [產品規劃總覽](docs/pages/pages/README.md)

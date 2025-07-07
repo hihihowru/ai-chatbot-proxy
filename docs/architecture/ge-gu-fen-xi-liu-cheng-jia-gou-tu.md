@@ -7,13 +7,13 @@ graph TB
     User[👤 用戶] --> Frontend[ 前端 React/Next.js]
     
     %% 前端層
-    Frontend --> |SSE 請求| API[🚀 FastAPI 後端]
+    Frontend --> |SSE 請求| API[ FastAPI 後端]
     Frontend --> |WebSocket| WS[🔌 WebSocket 連接]
     
     %% 後端 API 層
     API --> |/api/ask-sse| SSEHandler[ SSE 事件處理器]
     API --> |/api/ask| SyncHandler[⚡ 同步處理器]
-    API --> |/api/query-database| DBHandler[🗄️ 資料庫查詢]
+    API --> |/api/query-database| DBHandler[🗄 資料庫查詢]
     API --> |/api/query-chart| ChartHandler[ 圖表查詢]
     
     %% 主要資料流處理
@@ -35,15 +35,15 @@ graph TB
         ReportPipeline --> PriceSummary[📉 股價異動總結]
         PriceSummary --> FinancialSection[💰 財務狀況分析]
         FinancialSection --> StrategySection[💡 投資策略建議]
-        StrategySection --> NoticeSection[⚠️ 操作注意事項]
-        NoticeSection --> SourcesSection[📚 資料來源]
-        SourcesSection --> DisclaimerSection[⚖️ 免責聲明]
+        StrategySection --> NoticeSection[⚠ 操作注意事項]
+        NoticeSection --> SourcesSection[ 資料來源]
+        SourcesSection --> DisclaimerSection[⚖ 免責聲明]
     end
     
     %% 投資策略建議 Section (包含 summary_table)
     StrategySection --> LLMStrategy[🤖 LLM 策略生成]
     LLMStrategy --> SummaryTable[ Summary Table 生成]
-    SummaryTable --> StrategyResult[✅ 策略結果]
+    SummaryTable --> StrategyResult[ 策略結果]
     
     %% 外部 API 整合
     NewsSearch --> SerperAPI[🌐 Serper API]
@@ -57,7 +57,7 @@ graph TB
     %% 前端渲染層
     subgraph "前端渲染組件"
         Frontend --> InvestmentCard[📊 InvestmentReportCard]
-        InvestmentCard --> SummaryTableComponent[📋 SummaryTableComponent]
+        InvestmentCard --> SummaryTableComponent[ SummaryTableComponent]
         InvestmentCard --> TabsComponent[📑 TabsComponent]
         InvestmentCard --> FinancialScores[📈 FinancialScoresComponent]
     end

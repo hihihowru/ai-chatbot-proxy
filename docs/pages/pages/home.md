@@ -60,7 +60,7 @@
 ### StockThumbnail
 - 持股縮圖元件
 - 顯示股票代號、名稱、漲跌幅
-- 狀態圖示（⭐ 優秀、⚠️ 需關注、🔥 熱門）
+- 狀態圖示（⭐ 優秀、⚠ 需關注、🔥 熱門）
 
 ### InternationalMarketThumbnail
 - 國際股市縮圖元件
