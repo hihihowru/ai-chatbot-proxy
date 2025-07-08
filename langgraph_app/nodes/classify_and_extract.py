@@ -4,6 +4,7 @@ import re
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 import os
+from utils.token_tracker import track_openai_call
 
 # 載入 stock alias dict
 DATA_PATH = os.path.join(os.path.dirname(__file__), '../../data/stock_alias_dict.json')
@@ -168,6 +169,14 @@ def classify_and_extract(user_input: str, model: str = "gpt-3.5-turbo") -> Dict:
             temperature=0
         )
         
+        # 🔢 追蹤 token 使用量
+        track_openai_call(
+            node_name="classify_and_extract",
+            response=response,
+            user_input=user_input,
+            stock_id=stock_id
+        )
+        
         # 解析 JSON 回應
         try:
             result = json.loads(response.choices[0].message.content.strip())
@@ -202,6 +211,15 @@ def classify_and_extract(user_input: str, model: str = "gpt-3.5-turbo") -> Dict:
             
     except Exception as e:
         print(f"[classify_and_extract ERROR] {e}")
+        # 🔢 記錄錯誤的 API 調用
+        track_openai_call(
+            node_name="classify_and_extract",
+            response=None,
+            user_input=user_input,
+            stock_id=stock_id,
+            success=False,
+            error_message=str(e)
+        )
         return {
             "category": "個股分析",
             "subcategory": ["綜合分析"],
