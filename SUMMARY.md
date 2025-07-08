@@ -72,5 +72,6 @@
 * [MVP Sitemap](docs/mvp/mvp_sitemap.md)
 * [MVP Business Plan](docs/mvp/business_plan.md)
 * [API調用總結表格](docs/mvp/API調用總結表格.md)
+* [Token 成本分析](docs/mvp/Token成本分析.md)
 * [首頁 Wireframe 設計](docs/mvp/首頁Wireframe設計.md)
 * [首頁 Wireframe 視覺圖表](docs/mvp/首頁Wireframe圖表.md)
