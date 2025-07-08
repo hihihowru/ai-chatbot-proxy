@@ -1,0 +1,75 @@
+{
+  "generated_at": "2025-07-08T16:03:52.393470",
+  "summary": {
+    "total_calls": 3,
+    "total_prompt_tokens": 850,
+    "total_completion_tokens": 550,
+    "total_tokens": 1400,
+    "total_cost": 0.0028,
+    "success_rate": 1.0,
+    "node_breakdown": {
+      "classify_and_extract": {
+        "calls": 1,
+        "prompt_tokens": 150,
+        "completion_tokens": 50,
+        "total_tokens": 200,
+        "cost": 0.0004
+      },
+      "summarize_results": {
+        "calls": 1,
+        "prompt_tokens": 300,
+        "completion_tokens": 200,
+        "total_tokens": 500,
+        "cost": 0.001
+      },
+      "generate_report": {
+        "calls": 1,
+        "prompt_tokens": 400,
+        "completion_tokens": 300,
+        "total_tokens": 700,
+        "cost": 0.0014
+      }
+    }
+  },
+  "detailed_log": [
+    {
+      "timestamp": "2025-07-08T16:03:52.393092",
+      "node_name": "classify_and_extract",
+      "model": "gpt-3.5-turbo",
+      "prompt_tokens": 150,
+      "completion_tokens": 50,
+      "total_tokens": 200,
+      "cost_usd": 0.0004,
+      "user_input": "台積電怎麼樣？",
+      "stock_id": "2330",
+      "success": true,
+      "error_message": ""
+    },
+    {
+      "timestamp": "2025-07-08T16:03:52.393244",
+      "node_name": "summarize_results",
+      "model": "gpt-3.5-turbo",
+      "prompt_tokens": 300,
+      "completion_tokens": 200,
+      "total_tokens": 500,
+      "cost_usd": 0.001,
+      "user_input": "台積電財報分析",
+      "stock_id": "2330",
+      "success": true,
+      "error_message": ""
+    },
+    {
+      "timestamp": "2025-07-08T16:03:52.393333",
+      "node_name": "generate_report",
+      "model": "gpt-3.5-turbo",
+      "prompt_tokens": 400,
+      "completion_tokens": 300,
+      "total_tokens": 700,
+      "cost_usd": 0.0014,
+      "user_input": "台積電完整分析報告",
+      "stock_id": "2330",
+      "success": true,
+      "error_message": ""
+    }
+  ]
+}

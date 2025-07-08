@@ -1,0 +1,54 @@
+[
+  {
+    "timestamp": "2025-07-08T16:03:52.394472",
+    "node_name": "classify_and_extract",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 180,
+    "completion_tokens": 65,
+    "total_tokens": 245,
+    "cost_usd": 0.0005,
+    "user_input": "台積電最近怎麼樣？",
+    "stock_id": "2330",
+    "success": true,
+    "error_message": ""
+  },
+  {
+    "timestamp": "2025-07-08T16:03:52.394560",
+    "node_name": "summarize_results",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 450,
+    "completion_tokens": 280,
+    "total_tokens": 730,
+    "cost_usd": 0.0015,
+    "user_input": "台積電新聞摘要",
+    "stock_id": "2330",
+    "success": true,
+    "error_message": ""
+  },
+  {
+    "timestamp": "2025-07-08T16:03:52.394623",
+    "node_name": "generate_section_strategy",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 250,
+    "completion_tokens": 180,
+    "total_tokens": 430,
+    "cost_usd": 0.0009,
+    "user_input": "台積電投資策略",
+    "stock_id": "2330",
+    "success": true,
+    "error_message": ""
+  },
+  {
+    "timestamp": "2025-07-08T16:03:52.394693",
+    "node_name": "generate_report",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 520,
+    "completion_tokens": 380,
+    "total_tokens": 900,
+    "cost_usd": 0.0018,
+    "user_input": "台積電完整報告",
+    "stock_id": "2330",
+    "success": true,
+    "error_message": ""
+  }
+]
