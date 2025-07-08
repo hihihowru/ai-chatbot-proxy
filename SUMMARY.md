@@ -71,3 +71,4 @@
 
 * [MVP Sitemap](docs/mvp/mvp_sitemap.md)
 * [MVP Business Plan](docs/mvp/business_plan.md)
+* [API調用總結表格](docs/mvp/API調用總結表格.md)
