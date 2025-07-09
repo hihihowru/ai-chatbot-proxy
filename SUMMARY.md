@@ -1,13 +1,13 @@
 # Table of contents
 
 * [台股投資分析助理系統 - 部署指南](README.md)
-* [ 更新日誌 (CHANGELOG)](CHANGELOG.md)
-* [🗺 網站地圖 (Sitemap)](docs/sitemap.md)
+* [更新日誌 (CHANGELOG)](CHANGELOG.md)
+* [網站地圖 (Sitemap)](docs/sitemap.md)
 * [投資分析系統 - Serper API 整合](README_INVESTMENT_ANALYSIS.md)
 * [搜尋功能更新說明](README_SEARCH_UPDATE.md)
 * [自選股摘要功能](README_WATCHLIST.md)
 
-## 📊 用戶旅程與設計
+## 用戶旅程與設計
 
 * [用戶旅程總覽](user_journey_map/README.md)
   * [旅程一：每日追蹤持股健康狀況](user_journey_map/yong-hulcheng-yi.md)
@@ -27,33 +27,34 @@
   * [模組化回覆功能說明](docs/modularized_responses.md)
   * [Prompting 設計與範例](docs/prompting.md)
   * [回覆模組系統](docs/response_modules.md)
+  * [UI Guideline](docs/UI_GUIDELINE.md)
 
-### 🏛 系統架構圖
+## 系統架構圖
 
 * [系統架構總覽](docs/architecture/README.md)
   * [個股分析流程架構圖](docs/architecture/ge-gu-fen-xi-liu-cheng-jia-gou-tu.md)
   * [自選股分析流程架構圖](docs/architecture/zi-xuan-gu-fen-xi-liu-cheng-jia-gou-tu.md)
 
-###  節點模組文檔
+## 節點模組文檔
 
 * [節點模組總覽](docs/nodes/README.md)
-  * [classify_and_extract - 分類與提取](docs/nodes/classify_and_extract.md)
-  * [detect_chart - 圖表檢測](docs/nodes/detect_chart.md)
-  * [detect_intent - 意圖檢測](docs/nodes/detect_intent.md)
-  * [detect_stock - 股票檢測](docs/nodes/detect_stock.md)
-  * [detect_time - 時間檢測](docs/nodes/detect_time.md)
-  * [generate_report - 報告生成](docs/nodes/generate_report.md)
-  * [generate_section_financial - 財務分析](docs/nodes/generate_section_financial.md)
-  * [generate_section_price_summary - 價格摘要](docs/nodes/generate_section_price_summary.md)
-  * [generate_section_return_analysis - 報酬分析](docs/nodes/generate_section_return_analysis.md)
-  * [generate_section_social_sentiment - 社群情緒](docs/nodes/generate_section_social_sentiment.md)
-  * [generate_section_strategy - 策略建議](docs/nodes/generate_section_strategy.md)
-  * [generate_watchlist_summary_pipeline - 自選股摘要](docs/nodes/generate_watchlist_summary_pipeline.md)
-  * [search_news - 新聞搜尋](docs/nodes/search_news.md)
+  * [classify\_and\_extract - 分類與提取](docs/nodes/classify_and_extract.md)
+  * [detect\_chart - 圖表檢測](docs/nodes/detect_chart.md)
+  * [detect\_intent - 意圖檢測](docs/nodes/detect_intent.md)
+  * [detect\_stock - 股票檢測](docs/nodes/detect_stock.md)
+  * [detect\_time - 時間檢測](docs/nodes/detect_time.md)
+  * [generate\_report - 報告生成](docs/nodes/generate_report.md)
+  * [generate\_section\_financial - 財務分析](docs/nodes/generate_section_financial.md)
+  * [generate\_section\_price\_summary - 價格摘要](docs/nodes/generate_section_price_summary.md)
+  * [generate\_section\_return\_analysis - 報酬分析](docs/nodes/generate_section_return_analysis.md)
+  * [generate\_section\_social\_sentiment - 社群情緒](docs/nodes/generate_section_social_sentiment.md)
+  * [generate\_section\_strategy - 策略建議](docs/nodes/generate_section_strategy.md)
+  * [generate\_watchlist\_summary\_pipeline - 自選股摘要](docs/nodes/generate_watchlist_summary_pipeline.md)
+  * [search\_news - 新聞搜尋](docs/nodes/search_news.md)
   * [summarize - 摘要生成](docs/nodes/summarize.md)
-  * [summarize_results - 結果摘要](docs/nodes/summarize_results.md)
+  * [summarize\_results - 結果摘要](docs/nodes/summarize_results.md)
 
-##  產品規劃
+## 產品規劃
 
 * [產品規劃總覽](產品規劃總覽.md)
 * [產品規劃總覽](docs/pages/pages/README.md)
@@ -65,3 +66,12 @@
 * [收藏頁面](docs/pages/pages/saved.md)
 * [設定頁面](docs/pages/pages/settings.md)
 * [通用元件](docs/pages/pages/components.md)
+
+## MVP 文件
+
+* [MVP Sitemap](docs/mvp/mvp_sitemap.md)
+* [MVP Business Plan](docs/mvp/business_plan.md)
+* [API調用總結表格](docs/mvp/API調用總結表格.md)
+* [Token 成本分析](docs/mvp/Token成本分析.md)
+* [首頁 Wireframe 設計](docs/mvp/首頁Wireframe設計.md)
+* [首頁 Wireframe 視覺圖表](docs/mvp/首頁Wireframe圖表.md)

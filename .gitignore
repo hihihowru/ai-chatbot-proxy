@@ -1,3 +1,4 @@
 .env 
 customGroup.postman_collection copy.json 
 .vercel
+.DS_Store
