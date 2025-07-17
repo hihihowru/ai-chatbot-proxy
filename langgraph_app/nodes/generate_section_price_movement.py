@@ -72,6 +72,7 @@ def generate_price_movement_section(company_name: str, stock_id: str, news_summa
             result = json.loads(raw_content)
             
             # 如果有新聞來源，替換來源標記
+            used_indices = set()  # 追蹤使用的來源索引
             if news_sources and isinstance(news_sources, list):
                 source_mapping = {
                     "來源1": news_sources[0] if len(news_sources) > 0 else {"title": "來源1", "link": "無連結"},
@@ -88,10 +89,14 @@ def generate_price_movement_section(company_name: str, stock_id: str, news_summa
                     for source_key, source_info in source_mapping.items():
                         if source_key in content:
                             content = content.replace(f"[{source_key}]", f"[{source_info.get('title', source_key)}]")
+                            # 記錄使用的來源索引（基於 source_key 的數字）
+                            source_num = int(source_key.replace("來源", "")) - 1
+                            if 0 <= source_num < len(news_sources):
+                                used_indices.add(source_num)
                     card["content"] = content
             
             # 按照出現順序組成 sources 陣列
-            sources = [news_sources[i] for i in sorted(used_indices)] if news_sources else []
+            sources = [news_sources[i] for i in sorted(used_indices)] if news_sources and used_indices else []
             result["sources"] = sources
             
             print(f"[DEBUG] ✅ 股價異動總結產生成功")

@@ -86,7 +86,30 @@ def generate_report_pipeline(
             print(f"[DEBUG] ✅ 股價異動總結產生成功")
         else:
             print(f"[DEBUG] ❌ 股價異動總結產生失敗: {price_result.get('error', '未知錯誤')}")
-            price_result["section"]["sources"] = news_sources
+            # 確保預設內容也有 sources
+            if "section" not in price_result:
+                price_result["section"] = {
+                    "section": "股價異動總結",
+                    "cards": [
+                        {
+                            "title": "近期漲跌主因",
+                            "content": f"根據新聞分析，{company_name}({stock_id})近期股價變動主要受到市場因素影響。"
+                        },
+                        {
+                            "title": "法人動向",
+                            "content": f"法人買賣超分析：需關注外資和投信動向。"
+                        },
+                        {
+                            "title": "技術面觀察",
+                            "content": f"技術指標分析：建議關注支撐壓力位。"
+                        }
+                    ],
+                    "sources": news_sources if news_sources else []
+                }
+            else:
+                # 確保 section 有 sources
+                if "sources" not in price_result["section"]:
+                    price_result["section"]["sources"] = news_sources if news_sources else []
             all_sections.append(price_result["section"])  # 使用預設內容
             logs.append("❌ 股價異動總結產生失敗，使用預設內容")
         
