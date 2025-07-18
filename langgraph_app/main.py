@@ -1150,7 +1150,8 @@ async def proxy_custom_group(request: Request):
         if auth_header:
             headers['Authorization'] = auth_header
             
-        resp = requests.post(url, data=body, headers=headers)
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, data=body, headers=headers, timeout=30.0)
         
         return Response(
             content=resp.content, 
